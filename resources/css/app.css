@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --chart-grid: #f4f4f5;
+        --chart-text: #a1a1aa;
+        --chart-fill: #18181b;
+        --chart-tooltip-bg: #ffffff;
+        --chart-tooltip-border: #e4e4e7;
+    }
+
+    .dark {
+        --chart-grid: #27272a;
+        --chart-text: #71717a;
+        --chart-fill: #f4f4f5;
+        --chart-tooltip-bg: #18181b;
+        --chart-tooltip-border: #27272a;
+    }
+
+    html {
+        font-family: 'Outfit', system-ui, sans-serif;
+    }
+
+    body {
+        @apply bg-white text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+        @apply bg-zinc-100 dark:bg-zinc-900;
+    }
+    ::-webkit-scrollbar-thumb {
+        @apply bg-zinc-400 dark:bg-zinc-700 rounded-full;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-zinc-600 dark:bg-zinc-500;
+    }
+}
+
+@layer utilities {
+    .mono-card {
+        @apply bg-white border border-zinc-200 rounded-2xl shadow-sm dark:bg-zinc-900 dark:border-zinc-800;
+    }
+    .mono-input {
+        @apply w-full rounded-xl border border-zinc-300 bg-white text-zinc-900 placeholder-zinc-400 px-4 py-3 text-sm shadow-sm focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 focus:outline-none transition-all duration-200 dark:bg-zinc-800 dark:text-zinc-100 dark:border-zinc-700 dark:placeholder-zinc-500 dark:focus:border-zinc-300 dark:focus:ring-zinc-300;
+    }
+    .mono-btn-primary {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl bg-zinc-900 text-white text-xs font-bold uppercase tracking-widest px-5 py-3 transition-all duration-200 hover:bg-zinc-700 active:bg-black disabled:opacity-40 disabled:pointer-events-none shadow-sm dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 dark:active:bg-zinc-300;
+    }
+    .mono-btn-secondary {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl bg-white border border-zinc-300 text-zinc-700 text-xs font-bold uppercase tracking-widest px-5 py-3 transition-all duration-200 hover:bg-zinc-50 hover:border-zinc-400 disabled:opacity-40 disabled:pointer-events-none shadow-sm dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:hover:border-zinc-600;
+    }
+    .mono-label {
+        @apply block text-[11px] font-extrabold text-zinc-500 uppercase tracking-[0.15em] mb-1.5 dark:text-zinc-400;
+    }
+}
