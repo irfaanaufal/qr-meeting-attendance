@@ -52,6 +52,14 @@ export default function Navbar({ user }) {
                             </svg>
                             Rapat
                         </NavLink>
+                        {user.role === 'superadmin' && (
+                            <NavLink href={route('karyawan.index')} active={route().current('karyawan.index')}>
+                                <svg className={`w-4 h-4 mr-0.5 ${route().current('karyawan.index') ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-zinc-500'}`} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.386 11.386 0 0110.089 20c-2.202 0-4.277-.61-6.059-1.673a8.967 8.967 0 01-1.685-1.353 3.5 3.5 0 014.78-4.42 10.78 10.78 0 0112.445 1.572M16.25 5.5a3.25 3.25 0 11-6.5 0 3.25 3.25 0 016.5 0zm-8 8a2.75 2.75 0 11-5.5 0 2.75 2.75 0 015.5 0z" />
+                                </svg>
+                                Karyawan
+                            </NavLink>
+                        )}
                     </div>
                 </div>
 
@@ -140,6 +148,14 @@ export default function Navbar({ user }) {
                     >
                         Rapat
                     </ResponsiveNavLink>
+                    {user.role === 'superadmin' && (
+                        <ResponsiveNavLink
+                            href={route('karyawan.index')}
+                            active={route().current('karyawan.index')}
+                        >
+                            Karyawan
+                        </ResponsiveNavLink>
+                    )}
                     {/* Mobile Toggle Mode */}
                     <button
                         onClick={toggleTheme}

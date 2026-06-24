@@ -37,70 +37,70 @@ class KaryawanSeeder extends Seeder
 
 
             // Staff Laki-Laki (Admin & HRD)
-            ['fid' => '30',  'nama_karyawan' => 'Hamid', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '121', 'nama_karyawan' => 'Ahmad Aeli', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '168', 'nama_karyawan' => 'Sandi', 'divisi' => '', 'jabatan' => 'Karyawan'],
+            ['fid' => '30',  'nama_karyawan' => 'Hamid', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '121', 'nama_karyawan' => 'Ahmad Aeli', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '168', 'nama_karyawan' => 'Sandi', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
 
             // Staff Laki-Laki (IT)
-            ['fid' => '26',  'nama_karyawan' => 'Doni', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '193', 'nama_karyawan' => 'Irpan', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '265', 'nama_karyawan' => 'Acep', 'divisi' => '', 'jabatan' => 'Karyawan'],
+            ['fid' => '26',  'nama_karyawan' => 'Doni', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '193', 'nama_karyawan' => 'Irpan', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '265', 'nama_karyawan' => 'Acep', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
 
             // Staff Laki-Laki (QC)
-            ['fid' => '71',  'nama_karyawan' => 'Ali', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '89',  'nama_karyawan' => 'Anggi', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '112', 'nama_karyawan' => 'Baihaki', 'divisi' => '', 'jabatan' => 'Karyawan'],     
+            ['fid' => '71',  'nama_karyawan' => 'Ali', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '89',  'nama_karyawan' => 'Anggi', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '112', 'nama_karyawan' => 'Baihaki', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],     
 
             // Staff Laki-Laki (Produksi)
-            ['fid' => '23',  'nama_karyawan' => 'Ajat', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '66',  'nama_karyawan' => 'Burhan', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '111', 'nama_karyawan' => 'Budiman', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '196', 'nama_karyawan' => 'Kosim', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '224', 'nama_karyawan' => 'Mulyadi', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '231', 'nama_karyawan' => 'Dede M. Ramdan', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '257', 'nama_karyawan' => 'Kuswandi', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '269', 'nama_karyawan' => 'Jajang Permana', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '273', 'nama_karyawan' => 'Wandi', 'divisi' => '', 'jabatan' => 'Karyawan'],
+            ['fid' => '23',  'nama_karyawan' => 'Ajat', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '66',  'nama_karyawan' => 'Burhan', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '111', 'nama_karyawan' => 'Budiman', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '196', 'nama_karyawan' => 'Kosim', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '224', 'nama_karyawan' => 'Mulyadi', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '231', 'nama_karyawan' => 'Dede M. Ramdan', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '257', 'nama_karyawan' => 'Kuswandi', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '269', 'nama_karyawan' => 'Jajang Permana', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '273', 'nama_karyawan' => 'Wandi', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
 
             // Staff Laki-Laki (Satpam)
-            ['fid' => '31',  'nama_karyawan' => 'Rahmat', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '32',  'nama_karyawan' => 'Lukman', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '35',  'nama_karyawan' => 'Ujang', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '43',  'nama_karyawan' => 'Wawan', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '46',  'nama_karyawan' => 'Marda', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '70',  'nama_karyawan' => 'Bahtiar', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '191', 'nama_karyawan' => 'Nanang', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '192', 'nama_karyawan' => 'Unang', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '222', 'nama_karyawan' => 'Apipudin', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '266', 'nama_karyawan' => 'Doni Suheri', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '274', 'nama_karyawan' => 'Nur Ilham', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '94',  'nama_karyawan' => 'Wahyudin', 'divisi' => '', 'jabatan' => 'Karyawan'],
+            ['fid' => '31',  'nama_karyawan' => 'Rahmat', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '32',  'nama_karyawan' => 'Lukman', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '35',  'nama_karyawan' => 'Ujang', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '43',  'nama_karyawan' => 'Wawan', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '46',  'nama_karyawan' => 'Marda', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '70',  'nama_karyawan' => 'Bahtiar', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '191', 'nama_karyawan' => 'Nanang', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '192', 'nama_karyawan' => 'Unang', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '222', 'nama_karyawan' => 'Apipudin', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '266', 'nama_karyawan' => 'Doni Suheri', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '274', 'nama_karyawan' => 'Nur Ilham', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '94',  'nama_karyawan' => 'Wahyudin', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
 
 
 
-            ['fid' => '49',  'nama_karyawan' => 'Erna', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '50',  'nama_karyawan' => 'Halimah', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '130', 'nama_karyawan' => 'Elsa', 'divisi' => '', 'jabatan' => 'Karyawan'],
+            ['fid' => '49',  'nama_karyawan' => 'Erna', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '50',  'nama_karyawan' => 'Halimah', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '130', 'nama_karyawan' => 'Elsa', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
 
             // Staff Perempuan (IT)
-            ['fid' => '61',  'nama_karyawan' => 'Nia', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '131', 'nama_karyawan' => 'Rika', 'divisi' => '', 'jabatan' => 'Karyawan'],
+            ['fid' => '61',  'nama_karyawan' => 'Nia', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '131', 'nama_karyawan' => 'Rika', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
 
             // Staff Perempuan (QC)
-            ['fid' => '52',  'nama_karyawan' => 'Yati', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '53',  'nama_karyawan' => 'Yuyun', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '262', 'nama_karyawan' => 'Reni', 'divisi' => '', 'jabatan' => 'Karyawan'],
+            ['fid' => '52',  'nama_karyawan' => 'Yati', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '53',  'nama_karyawan' => 'Yuyun', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '262', 'nama_karyawan' => 'Reni', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
 
             // Staff Perempuan (Produksi)
-            ['fid' => '54',  'nama_karyawan' => 'Neni', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '55',  'nama_karyawan' => 'Tini', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '58',  'nama_karyawan' => 'Yayah', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '64',  'nama_karyawan' => 'Rina', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '67',  'nama_karyawan' => 'Ai', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '186', 'nama_karyawan' => 'Pipin', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '228', 'nama_karyawan' => 'Mulyati', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '264', 'nama_karyawan' => 'Eni', 'divisi' => '', 'jabatan' => 'Karyawan'],
-            ['fid' => '267', 'nama_karyawan' => 'Wida', 'divisi' => '', 'jabatan' => 'Karyawan'],
+            ['fid' => '54',  'nama_karyawan' => 'Neni', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '55',  'nama_karyawan' => 'Tini', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '58',  'nama_karyawan' => 'Yayah', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '64',  'nama_karyawan' => 'Rina', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '67',  'nama_karyawan' => 'Ai', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '186', 'nama_karyawan' => 'Pipin', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '228', 'nama_karyawan' => 'Mulyati', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '264', 'nama_karyawan' => 'Eni', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
+            ['fid' => '267', 'nama_karyawan' => 'Wida', 'divisi' => 'Produksi', 'jabatan' => 'Karyawan'],
 
             // ... (Data staff sebelumnya) ...
 

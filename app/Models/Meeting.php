@@ -16,6 +16,7 @@ class Meeting extends Model
         'tanggal_jam',
         'ringkasan',
         'status',
+        'berkas',
     ];
 
     protected $casts = [

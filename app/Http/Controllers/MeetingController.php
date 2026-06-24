@@ -46,12 +46,12 @@ class MeetingController extends Controller
         $meeting = Meeting::with([
             'user', 
             'absensi' => function ($query) {
-                $query->with('karyawan')->orderBy('jam_absen', 'desc');
+                $query->with('karyawan')->orderBy('jam_absen', 'asc');
             }
         ])->findOrFail($id);
 
-        // Security check: Only the creator (host) or superadmin can view this detail page
-        if ($meeting->user_id !== Auth::id() && Auth::user()->role !== 'superadmin') {
+        // Security check: Only the creator (host), superadmin, or any host if the meeting is Ended
+        if ($meeting->user_id !== Auth::id() && Auth::user()->role !== 'superadmin' && $meeting->status !== 'Ended') {
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki otoritas untuk melihat rincian rapat ini.');
         }
 
@@ -127,6 +127,11 @@ class MeetingController extends Controller
         $karyawan = Karyawan::where('fid', $request->fid)->first();
         if (!$karyawan) {
             return back()->with('error', 'Nomor FID tidak terdaftar!');
+        }
+
+        // Validate if the employee account is active
+        if ($karyawan->status !== 'Active') {
+            return back()->with('error', 'Maaf, akun karyawan Anda sudah dinonaktifkan (Inactive).');
         }
 
         // 3. Prevent duplicate check-in (mencegah absen ganda)
@@ -233,7 +238,7 @@ class MeetingController extends Controller
             }
         ])->findOrFail($id);
 
-        if ($meeting->user_id !== Auth::id() && Auth::user()->role !== 'superadmin') {
+        if ($meeting->user_id !== Auth::id() && Auth::user()->role !== 'superadmin' && $meeting->status !== 'Ended') {
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki otoritas untuk mencetak rapat ini.');
         }
 
@@ -241,4 +246,99 @@ class MeetingController extends Controller
             'meeting' => $meeting
         ]);
     }
+
+    /**
+     * Delete an attendance record (Absensi).
+     */
+    public function destroyAbsen($meetingId, $absenId)
+    {
+        $meeting = Meeting::findOrFail($meetingId);
+
+        // Security check: Only the creator (host) or superadmin can delete
+        if ($meeting->user_id !== Auth::id() && Auth::user()->role !== 'superadmin') {
+            return back()->with('error', 'Anda tidak memiliki otoritas untuk menghapus data absensi ini.');
+        }
+
+        // Strict validation: If the meeting status is Ended, no one can delete, not even Super Admin
+        if ($meeting->status === 'Ended') {
+            return back()->with('error', 'Rapat sudah diakhiri. Data absensi bersifat Read-Only.');
+        }
+
+        $absen = AbsensiMeeting::where('meeting_id', $meetingId)->findOrFail($absenId);
+        $absen->delete();
+
+        return back()->with('success', 'Kehadiran karyawan berhasil dihapus.');
+    }
+
+    /**
+     * Upload a document for the meeting.
+     */
+    public function uploadBerkas(Request $request, $id)
+    {
+        $meeting = Meeting::findOrFail($id);
+
+        // Security check: Only the creator (host) or superadmin can upload
+        if ($meeting->user_id !== Auth::id() && Auth::user()->role !== 'superadmin') {
+            return back()->with('error', 'Anda tidak memiliki otoritas untuk mengunggah berkas rapat ini.');
+        }
+
+        // Lock check: If ended
+        if ($meeting->status === 'Ended') {
+            return back()->with('error', 'Rapat sudah diakhiri. Berkas bersifat Read-Only.');
+        }
+
+        $request->validate([
+            'berkas' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png|max:10240', // 10MB limit
+        ]);
+
+        if ($request->hasFile('berkas')) {
+            // Delete old file if exists
+            if ($meeting->berkas) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($meeting->berkas);
+            }
+
+            $file = $request->file('berkas');
+            $originalName = $file->getClientOriginalName();
+            // Store it
+            $path = $file->store('meetings/berkas', 'public');
+            
+            $meeting->update([
+                'berkas' => $path,
+            ]);
+
+            return back()->with('success', 'Berkas "' . $originalName . '" berhasil diunggah!');
+        }
+
+        return back()->with('error', 'Gagal mengunggah berkas.');
+    }
+
+    /**
+     * Delete the meeting document.
+     */
+    public function deleteBerkas($id)
+    {
+        $meeting = Meeting::findOrFail($id);
+
+        // Security check: Only the creator (host) or superadmin can delete
+        if ($meeting->user_id !== Auth::id() && Auth::user()->role !== 'superadmin') {
+            return back()->with('error', 'Anda tidak memiliki otoritas untuk menghapus berkas rapat ini.');
+        }
+
+        // Lock check: If ended
+        if ($meeting->status === 'Ended') {
+            return back()->with('error', 'Rapat sudah diakhiri. Berkas bersifat Read-Only.');
+        }
+
+        if ($meeting->berkas) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($meeting->berkas);
+            $meeting->update([
+                'berkas' => null,
+            ]);
+
+            return back()->with('success', 'Berkas rapat berhasil dihapus.');
+        }
+
+        return back()->with('error', 'Tidak ada berkas untuk dihapus.');
+    }
 }
+

@@ -41,6 +41,35 @@ export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsen
         }
     };
 
+    const canDeleteAbsen = canManage && meeting.status !== 'Ended';
+
+    const handleDeleteAbsen = (absenId, namaKaryawan) => {
+        if (confirm(`Apakah Anda yakin ingin menghapus kehadiran untuk ${namaKaryawan || 'karyawan ini'}?`)) {
+            router.delete(route('meetings.absensi.destroy', [meeting.id, absenId]), {
+                preserveScroll: true,
+            });
+        }
+    };
+
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        router.post(route('meetings.upload-berkas', meeting.id), {
+            berkas: file,
+        }, {
+            preserveScroll: true,
+        });
+    };
+
+    const handleDeleteFile = () => {
+        if (confirm('Apakah Anda yakin ingin menghapus berkas rapat ini?')) {
+            router.delete(route('meetings.delete-berkas', meeting.id), {
+                preserveScroll: true,
+            });
+        }
+    };
+
     const filteredAbsensi = meeting.absensi.filter(item => {
         const karyawan = item.karyawan || {};
         const term = searchQuery.toLowerCase();
@@ -191,9 +220,79 @@ export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsen
                                             <p className="text-[11px] font-extrabold text-zinc-400 dark:text-zinc-550 uppercase tracking-[0.15em]">Divisi Pemateri</p>
                                             <p className="font-semibold text-zinc-900 dark:text-zinc-100">{meeting.divisi_pemateri || 'Umum'}</p>
                                         </div>
-                                        <div className="sm:col-span-2 space-y-1">
+                                        <div className="space-y-1">
                                             <p className="text-[11px] font-extrabold text-zinc-400 dark:text-zinc-550 uppercase tracking-[0.15em]">Tanggal & Waktu Mulai</p>
                                             <p className="font-semibold text-zinc-900 dark:text-zinc-100">{formatDateTime(meeting.tanggal_jam)}</p>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-[11px] font-extrabold text-zinc-400 dark:text-zinc-550 uppercase tracking-[0.15em]">Berkas Rapat / Dokumen</p>
+                                            {meeting.berkas ? (
+                                                <div className="flex items-center justify-between gap-3 p-2 bg-zinc-50 border border-zinc-200 rounded-xl dark:bg-zinc-950/20 dark:border-zinc-800">
+                                                    <div className="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                        <svg className="w-5 h-5 text-zinc-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                                        </svg>
+                                                        <div className="truncate">
+                                                            <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate" title={meeting.berkas.split('/').pop()}>
+                                                                {meeting.berkas.split('/').pop()}
+                                                            </p>
+                                                            <p className="text-[10px] text-zinc-400 dark:text-zinc-500">Tersedia untuk diunduh</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                                                        <a
+                                                            href={`/storage/${meeting.berkas}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="p-1.5 rounded-lg bg-zinc-100 text-zinc-700 hover:bg-zinc-200 transition dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-750 flex items-center justify-center border border-zinc-200 dark:border-zinc-750"
+                                                            title="Lihat Berkas"
+                                                        >
+                                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.43 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                            </svg>
+                                                        </a>
+                                                        <a
+                                                            href={`/storage/${meeting.berkas}`}
+                                                            download
+                                                            className="p-1.5 rounded-lg bg-zinc-900 text-white hover:bg-zinc-850 transition dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-100 flex items-center justify-center"
+                                                            title="Unduh Berkas"
+                                                        >
+                                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                                            </svg>
+                                                        </a>
+                                                        {canManage && !isEnded && (
+                                                            <button
+                                                                onClick={handleDeleteFile}
+                                                                className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/40 border border-red-100 dark:border-red-900/30 flex items-center justify-center"
+                                                                title="Hapus Berkas"
+                                                            >
+                                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                                                </svg>
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                canManage && !isEnded ? (
+                                                    <label className="flex items-center justify-center gap-2 p-2 border border-dashed border-zinc-300 hover:border-zinc-400 rounded-xl bg-zinc-50/50 hover:bg-zinc-50 cursor-pointer transition text-xs font-semibold text-zinc-600 hover:text-zinc-900 dark:border-zinc-800 dark:hover:border-zinc-700 dark:bg-zinc-950/10 dark:hover:bg-zinc-950/20 dark:text-zinc-400 dark:hover:text-white">
+                                                        <svg className="w-4 h-4 text-zinc-400 animate-pulse" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                                        </svg>
+                                                        Pilih Berkas
+                                                        <input
+                                                            type="file"
+                                                            className="hidden"
+                                                            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png"
+                                                            onChange={handleFileUpload}
+                                                        />
+                                                    </label>
+                                                ) : (
+                                                    <p className="text-xs text-zinc-400 italic mt-1">Belum ada berkas rapat.</p>
+                                                )
+                                            )}
                                         </div>
                                         <div className="sm:col-span-2 space-y-2">
                                             <div className="flex items-center justify-between">
@@ -297,13 +396,18 @@ export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsen
                                                                 {h}
                                                             </th>
                                                         ))}
+                                                        {canDeleteAbsen && (
+                                                            <th scope="col" className="px-5 py-3 text-left text-[10px] font-extrabold uppercase tracking-[0.15em] text-zinc-500 dark:text-zinc-450 whitespace-nowrap">
+                                                                Aksi
+                                                            </th>
+                                                        )}
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60 bg-white dark:bg-zinc-900">
                                                     {filteredAbsensi.map((item, index) => (
                                                         <tr key={item.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-950/40 transition">
                                                             <td className="whitespace-nowrap px-5 py-4 text-sm text-zinc-400 dark:text-zinc-500 font-medium">
-                                                                {filteredAbsensi.length - index}
+                                                                {index + 1}
                                                             </td>
                                                             <td className="whitespace-nowrap px-5 py-4 text-sm font-mono font-bold text-zinc-900 dark:text-zinc-100">
                                                                 #{item.karyawan_fid}
@@ -320,6 +424,19 @@ export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsen
                                                             <td className="whitespace-nowrap px-5 py-4 text-sm font-mono font-semibold text-zinc-900 dark:text-zinc-100 bg-zinc-50 dark:bg-zinc-950">
                                                                 {formatTime(item.jam_absen)}
                                                             </td>
+                                                            {canDeleteAbsen && (
+                                                                <td className="whitespace-nowrap px-5 py-4 text-sm">
+                                                                    <button
+                                                                        onClick={() => handleDeleteAbsen(item.id, item.karyawan?.nama_karyawan)}
+                                                                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs uppercase tracking-wider transition border border-red-100 dark:bg-red-950/20 dark:hover:bg-red-950/40 dark:text-red-400 dark:border-red-900/30"
+                                                                    >
+                                                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                                                        </svg>
+                                                                        Hapus
+                                                                    </button>
+                                                                </td>
+                                                            )}
                                                         </tr>
                                                     ))}
                                                 </tbody>

@@ -22,6 +22,7 @@ class Karyawan extends Model
         'nama_karyawan',
         'divisi',
         'jabatan',
+        'status',
     ];
 
     public function absensi()

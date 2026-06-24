@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Karyawan;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -38,10 +39,15 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // Attempt to match with karyawan list to auto-assign division
+        $karyawan = Karyawan::where('nama_karyawan', 'like', trim($request->name))->first();
+        $divisi = $karyawan ? $karyawan->divisi : 'Umum';
+
         $user = User::create([
             'name' => $request->name,
             'username' => $request->username,
             'email' => $request->email,
+            'divisi' => $divisi,
             'password' => Hash::make($request->password),
         ]);
 

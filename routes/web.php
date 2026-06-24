@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MeetingController;
+use App\Http\Controllers\KaryawanController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -18,7 +19,10 @@ Route::get('/dashboard', function () {
         ->orderBy('created_at', 'desc');
 
     if ($user->role !== 'superadmin') {
-        $query->where('user_id', $user->id);
+        $query->where(function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+              ->orWhere('status', 'Ended');
+        });
     }
 
     $meetings = $query->get();
@@ -75,7 +79,10 @@ Route::get('/meetings', function () {
         ->orderBy('created_at', 'desc');
 
     if ($user->role !== 'superadmin') {
-        $query->where('user_id', $user->id);
+        $query->where(function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+              ->orWhere('status', 'Ended');
+        });
     }
 
     $meetings = $query->get();
@@ -94,9 +101,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/meetings', [MeetingController::class, 'store'])->name('meetings.store');
     Route::get('/meetings/{id}', [MeetingController::class, 'show'])->name('meetings.show');
     Route::patch('/meetings/{id}', [MeetingController::class, 'update'])->name('meetings.update');
+    Route::post('/meetings/{id}/upload-berkas', [MeetingController::class, 'uploadBerkas'])->name('meetings.upload-berkas');
+    Route::delete('/meetings/{id}/delete-berkas', [MeetingController::class, 'deleteBerkas'])->name('meetings.delete-berkas');
     Route::post('/meetings/{id}/toggle', [MeetingController::class, 'toggleStatus'])->name('meetings.toggle');
     Route::post('/meetings/{id}/end', [MeetingController::class, 'end'])->name('meetings.end');
     Route::get('/meetings/{id}/print', [MeetingController::class, 'print'])->name('meetings.print');
+    Route::delete('/meetings/{meetingId}/absensi/{absenId}', [MeetingController::class, 'destroyAbsen'])->name('meetings.absensi.destroy');
+
+    Route::get('/karyawan', [KaryawanController::class, 'index'])->name('karyawan.index');
+    Route::post('/karyawan', [KaryawanController::class, 'store'])->name('karyawan.store');
+    Route::patch('/karyawan/{fid}', [KaryawanController::class, 'update'])->name('karyawan.update');
 });
 
 // Public routes for employees checking in via QR Code / Mobile

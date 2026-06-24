@@ -34,8 +34,9 @@ export default function Print({ meeting }) {
     return (
         <div className="min-h-screen bg-white text-black p-6 sm:p-12 print:p-0 print:m-0" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
             <Head title={`Laporan Rapat - ${meeting.judul_rapat}`} />
-            
-            <style dangerouslySetInnerHTML={{ __html: `
+
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 @page {
                     size: A4;
                     margin: 0; /* Hides default browser header and footer */
@@ -48,6 +49,9 @@ export default function Print({ meeting }) {
                         print-color-adjust: exact !important;
                         margin: 15mm 20mm; /* Re-applies standard margins to page content */
                     }
+                    .min-h-screen {
+                        min-height: auto !important;
+                    }
                     .no-print {
                         display: none;
                     }
@@ -56,7 +60,7 @@ export default function Print({ meeting }) {
 
             {/* Main Wrapper */}
             <div className="max-w-4xl mx-auto">
-                
+
                 {/* Kop Surat / Header */}
                 <div className="flex items-center justify-between gap-4 pb-2">
                     <div className="space-y-1">
@@ -99,7 +103,7 @@ export default function Print({ meeting }) {
                         <thead>
                             <tr className="bg-white">
                                 <th className="border border-zinc-400 px-3 py-2 font-bold text-center w-12 text-zinc-950">No</th>
-                                <th className="border border-zinc-400 px-3 py-2 font-bold text-center w-16 text-zinc-950">FID</th>
+                                {/* <th className="border border-zinc-400 px-3 py-2 font-bold text-center w-16 text-zinc-950">FID</th> */}
                                 <th className="border border-zinc-400 px-4 py-2 font-bold text-center text-zinc-950">Nama</th>
                                 <th className="border border-zinc-400 px-4 py-2 font-bold text-center w-28 text-zinc-950">Divisi</th>
                                 <th className="border border-zinc-400 px-4 py-2 font-bold text-center w-36 text-zinc-950">Jam Absen</th>
@@ -118,9 +122,9 @@ export default function Print({ meeting }) {
                                         <td className="border border-zinc-400 px-3 py-1 text-center text-zinc-950">
                                             {index + 1}
                                         </td>
-                                        <td className="border border-zinc-400 px-3 py-1 text-center text-zinc-950">
+                                        {/* <td className="border border-zinc-400 px-3 py-1 text-center text-zinc-950">
                                             {item.karyawan_fid}
-                                        </td>
+                                        </td> */}
                                         <td className="border border-zinc-400 px-4 py-1 text-zinc-950 text-left">
                                             {item.karyawan?.nama_karyawan || '-'}
                                         </td>
@@ -149,8 +153,8 @@ export default function Print({ meeting }) {
                             </div>
                         ) : (
                             textLines.map((line, index) => (
-                                <div 
-                                    key={index} 
+                                <div
+                                    key={index}
                                     className="min-h-[2.25rem] flex items-end pb-1 text-[14px] leading-relaxed px-1 text-zinc-950"
                                 >
                                     {line || '\u00A0'}
@@ -162,8 +166,8 @@ export default function Print({ meeting }) {
 
                 {/* Print Button (Floating & Hidden on print) */}
                 <div className="mt-8 flex justify-center no-print">
-                    <button 
-                        onClick={() => window.print()} 
+                    <button
+                        onClick={() => window.print()}
                         className="bg-zinc-900 text-white px-6 py-2 rounded-full font-bold shadow-md hover:bg-zinc-800 transition text-xs tracking-wider uppercase"
                         style={{ fontFamily: 'Arial, sans-serif' }}
                     >

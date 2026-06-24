@@ -10,6 +10,10 @@ export default function FormAbsenPublik({ meeting, flash, errors, alreadyAttende
 
     const { data, setData, post, processing, reset } = useForm({ fid: '' });
 
+    if (flash?.error && typeof window !== 'undefined') {
+        localStorage.removeItem('has_attended_' + meeting.id);
+    }
+
     const localCheck = typeof window !== 'undefined' ? localStorage.getItem('has_attended_' + meeting.id) === 'true' : false;
     const isBlocked = !isHost && (alreadyAttendedOnDevice || localCheck) && !flash?.success;
     const isDone = flash?.success || isBlocked;
@@ -37,8 +41,10 @@ export default function FormAbsenPublik({ meeting, flash, errors, alreadyAttende
     const submit = (e) => {
         e.preventDefault();
         post(route('absen.meeting.submit', meeting.id), {
-            onSuccess: () => {
-                if (!isHost) localStorage.setItem('has_attended_' + meeting.id, 'true');
+            onSuccess: (page) => {
+                if (page.props.flash?.success && !isHost) {
+                    localStorage.setItem('has_attended_' + meeting.id, 'true');
+                }
                 reset('fid');
             },
             preserveScroll: true,
