@@ -155,7 +155,7 @@ export default function KaryawanIndex({ karyawans }) {
                     {/* Main section: search and table */}
                     <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm overflow-hidden dark:bg-zinc-900 dark:border-zinc-800">
                         <div className="p-6">
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
                                 <div>
                                     <h3 className="font-extrabold text-zinc-900 dark:text-white text-sm tracking-tight flex items-center gap-2">
                                         Daftar Karyawan
@@ -165,35 +165,37 @@ export default function KaryawanIndex({ karyawans }) {
                                     </h3>
                                     <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium">Semua karyawan yang terdaftar di sistem</p>
                                 </div>
-                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-                                    {/* Entries Filter */}
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xs font-bold text-zinc-500 dark:text-zinc-450 whitespace-nowrap">Tampilkan:</span>
-                                        <select
-                                            value={entriesPerPage}
-                                            onChange={(e) => { setEntriesPerPage(e.target.value); setCurrentPage(1); }}
-                                            className="rounded-xl border border-zinc-300 bg-white text-zinc-900 px-3 py-2 text-xs shadow-sm focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 focus:outline-none dark:bg-zinc-950 dark:border-zinc-750 dark:text-white"
-                                        >
-                                            <option value="10">10</option>
-                                            <option value="25">25</option>
-                                            <option value="50">50</option>
-                                            <option value="100">100</option>
-                                            <option value="Semua">Semua</option>
-                                        </select>
-                                    </div>
+                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                                    <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center sm:gap-3">
+                                        {/* Entries Filter */}
+                                        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
+                                            <span className="text-xs font-bold text-zinc-500 dark:text-zinc-450 whitespace-nowrap">Tampilkan:</span>
+                                            <select
+                                                value={entriesPerPage}
+                                                onChange={(e) => { setEntriesPerPage(e.target.value); setCurrentPage(1); }}
+                                                className="w-full sm:w-auto rounded-xl border border-zinc-300 bg-white text-zinc-900 px-3 py-2 text-xs shadow-sm focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 focus:outline-none dark:bg-zinc-950 dark:border-zinc-750 dark:text-white"
+                                            >
+                                                <option value="10">10</option>
+                                                <option value="25">25</option>
+                                                <option value="50">50</option>
+                                                <option value="100">100</option>
+                                                <option value="Semua">Semua</option>
+                                            </select>
+                                        </div>
 
-                                    {/* Position Filter */}
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xs font-bold text-zinc-500 dark:text-zinc-450 whitespace-nowrap">Jabatan:</span>
-                                        <select
-                                            value={selectedJabatan}
-                                            onChange={(e) => { setSelectedJabatan(e.target.value); setCurrentPage(1); }}
-                                            className="rounded-xl border border-zinc-300 bg-white text-zinc-900 px-3 py-2 text-xs shadow-sm focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 focus:outline-none dark:bg-zinc-950 dark:border-zinc-750 dark:text-white max-w-[180px]"
-                                        >
-                                            {uniqueJabatans.map(j => (
-                                                <option key={j} value={j}>{j}</option>
-                                            ))}
-                                        </select>
+                                        {/* Position Filter */}
+                                        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
+                                            <span className="text-xs font-bold text-zinc-500 dark:text-zinc-450 whitespace-nowrap">Jabatan:</span>
+                                            <select
+                                                value={selectedJabatan}
+                                                onChange={(e) => { setSelectedJabatan(e.target.value); setCurrentPage(1); }}
+                                                className="w-full sm:w-40 rounded-xl border border-zinc-300 bg-white text-zinc-900 px-3 py-2 text-xs shadow-sm focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 focus:outline-none dark:bg-zinc-950 dark:border-zinc-750 dark:text-white"
+                                            >
+                                                {uniqueJabatans.map(j => (
+                                                    <option key={j} value={j}>{j}</option>
+                                                ))}
+                                            </select>
+                                        </div>
                                     </div>
 
                                     {/* Search Box */}
@@ -202,7 +204,7 @@ export default function KaryawanIndex({ karyawans }) {
                                         placeholder="Cari nama, divisi, FID..."
                                         value={searchQuery}
                                         onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                                        className="rounded-xl border border-zinc-300 bg-white text-zinc-900 placeholder-zinc-400 px-4 py-2 text-xs shadow-sm focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 focus:outline-none transition-all dark:bg-zinc-950 dark:border-zinc-700 dark:text-white dark:focus:border-zinc-100 dark:focus:ring-zinc-100 w-full sm:w-56"
+                                        className="rounded-xl border border-zinc-300 bg-white text-zinc-900 placeholder-zinc-400 px-4 py-2 text-xs shadow-sm focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 focus:outline-none transition-all dark:bg-zinc-950 dark:border-zinc-750 dark:text-white dark:focus:border-zinc-100 dark:focus:ring-zinc-100 w-full sm:w-56"
                                     />
                                 </div>
                             </div>

@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import LightPullThemeSwitcher from '@/Components/LightPullThemeSwitcher';
 
 export default function Navbar({ user }) {
+    const { props } = usePage();
+    const meeting = props.meeting;
+    const isEndedDetail = route().current('meetings.show') && meeting?.status === 'Ended';
+
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [showingUserDropdown, setShowingUserDropdown] = useState(false);
     const [theme, setTheme] = useState(() => {
@@ -46,11 +50,17 @@ export default function Navbar({ user }) {
                             </svg>
                             Dashboard
                         </NavLink>
-                        <NavLink href={route('meetings.index')} active={route().current('meetings.index') || route().current('meetings.show')}>
-                            <svg className={`w-4 h-4 mr-0.5 ${route().current('meetings.index') || route().current('meetings.show') ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-zinc-500'}`} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                        <NavLink href={route('meetings.index')} active={(route().current('meetings.index') || route().current('meetings.show')) && !isEndedDetail}>
+                            <svg className={`w-4 h-4 mr-0.5 ${(route().current('meetings.index') || route().current('meetings.show')) && !isEndedDetail ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-zinc-500'}`} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                             </svg>
                             Rapat
+                        </NavLink>
+                        <NavLink href={route('meetings.history')} active={route().current('meetings.history') || isEndedDetail}>
+                            <svg className={`w-4 h-4 mr-0.5 ${route().current('meetings.history') || isEndedDetail ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-zinc-500'}`} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Riwayat
                         </NavLink>
                         {user.role === 'superadmin' && (
                             <NavLink href={route('karyawan.index')} active={route().current('karyawan.index')}>
@@ -144,9 +154,15 @@ export default function Navbar({ user }) {
                     </ResponsiveNavLink>
                     <ResponsiveNavLink
                         href={route('meetings.index')}
-                        active={route().current('meetings.index') || route().current('meetings.show')}
+                        active={(route().current('meetings.index') || route().current('meetings.show')) && !isEndedDetail}
                     >
                         Rapat
+                    </ResponsiveNavLink>
+                    <ResponsiveNavLink
+                        href={route('meetings.history')}
+                        active={route().current('meetings.history') || isEndedDetail}
+                    >
+                        Riwayat
                     </ResponsiveNavLink>
                     {user.role === 'superadmin' && (
                         <ResponsiveNavLink

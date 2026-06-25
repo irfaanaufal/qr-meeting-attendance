@@ -144,7 +144,7 @@ export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsen
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
 
                         {/* Left: Meeting Info + Attendees */}
-                        <div className="space-y-6 lg:col-span-2">
+                        <div className={`space-y-6 ${isActive ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
 
                             {/* Meeting Info Card */}
                             <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm overflow-hidden dark:bg-zinc-900 dark:border-zinc-800">
@@ -448,58 +448,60 @@ export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsen
                         </div>
 
                         {/* Right: QR Code */}
-                        <div>
-                            <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm overflow-hidden sticky top-6 dark:bg-zinc-900 dark:border-zinc-800">
-                                <div className="bg-zinc-900 px-6 py-4 text-center dark:bg-zinc-950">
-                                    <h3 className="font-extrabold text-white text-sm tracking-wide uppercase">QR Code Kehadiran</h3>
-                                    <p className="text-xs text-zinc-400 mt-1 font-medium">Scan untuk absen via HP</p>
-                                </div>
-                                <div className="p-6 text-center space-y-5">
-                                    <div className="mx-auto flex justify-center bg-white p-3 rounded-2xl border-2 border-zinc-200 w-fit shadow-inner dark:border-zinc-850 dark:bg-white">
-                                        <img
-                                            src={qrCodeUrl}
-                                            alt="QR Code Absensi Rapat"
-                                            className="h-56 w-56 object-contain"
-                                        />
+                        {isActive && (
+                            <div>
+                                <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm overflow-hidden sticky top-6 dark:bg-zinc-900 dark:border-zinc-800">
+                                    <div className="bg-zinc-900 px-6 py-4 text-center dark:bg-zinc-950">
+                                        <h3 className="font-extrabold text-white text-sm tracking-wide uppercase">QR Code Kehadiran</h3>
+                                        <p className="text-xs text-zinc-400 mt-1 font-medium">Scan untuk absen via HP</p>
+                                    </div>
+                                    <div className="p-6 text-center space-y-5">
+                                        <div className="mx-auto flex justify-center bg-white p-3 rounded-2xl border-2 border-zinc-200 w-fit shadow-inner dark:border-zinc-850 dark:bg-white">
+                                            <img
+                                                src={qrCodeUrl}
+                                                alt="QR Code Absensi Rapat"
+                                                className="h-56 w-56 object-contain"
+                                            />
+                                        </div>
+
+                                        <div className="bg-zinc-50 rounded-xl border border-zinc-200 px-4 py-3 dark:bg-zinc-950 dark:border-zinc-800">
+                                            <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-550 uppercase tracking-widest mb-1">Link Absen Publik</p>
+                                            <p className="text-xs font-mono text-zinc-700 dark:text-zinc-350 truncate">{publicAbsenUrl}</p>
+                                        </div>
+
+                                        <div className="space-y-2.5">
+                                            <button
+                                                onClick={copyToClipboard}
+                                                className="w-full inline-flex justify-center items-center gap-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 border border-zinc-200 px-4 py-3 text-xs font-bold uppercase tracking-wider transition-all dark:bg-zinc-850 dark:hover:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-750"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                                </svg>
+                                                Salin Tautan
+                                            </button>
+
+                                            <a
+                                                href={publicAbsenUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="w-full inline-flex justify-center items-center gap-2 rounded-xl bg-zinc-900 hover:bg-zinc-700 text-white px-4 py-3 text-xs font-bold uppercase tracking-wider transition-all dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-900"
+                                            >
+                                                Buka Link Absen
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                </svg>
+                                            </a>
+                                        </div>
                                     </div>
 
-                                    <div className="bg-zinc-50 rounded-xl border border-zinc-200 px-4 py-3 dark:bg-zinc-950 dark:border-zinc-800">
-                                        <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-550 uppercase tracking-widest mb-1">Link Absen Publik</p>
-                                        <p className="text-xs font-mono text-zinc-700 dark:text-zinc-350 truncate">{publicAbsenUrl}</p>
+                                    <div className="border-t border-zinc-100 px-6 py-3 text-center dark:border-zinc-800">
+                                        <p className="text-[9px] font-bold text-zinc-300 dark:text-zinc-600 uppercase tracking-[0.25em]">
+                                            FID Absensi v2.0 &bull; Laravel + React
+                                        </p>
                                     </div>
-
-                                    <div className="space-y-2.5">
-                                        <button
-                                            onClick={copyToClipboard}
-                                            className="w-full inline-flex justify-center items-center gap-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 border border-zinc-200 px-4 py-3 text-xs font-bold uppercase tracking-wider transition-all dark:bg-zinc-850 dark:hover:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-750"
-                                        >
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                                            </svg>
-                                            Salin Tautan
-                                        </button>
-
-                                        <a
-                                            href={publicAbsenUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="w-full inline-flex justify-center items-center gap-2 rounded-xl bg-zinc-900 hover:bg-zinc-700 text-white px-4 py-3 text-xs font-bold uppercase tracking-wider transition-all dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-900"
-                                        >
-                                            Buka Link Absen
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                            </svg>
-                                        </a>
-                                    </div>
-                                </div>
-
-                                <div className="border-t border-zinc-100 px-6 py-3 text-center dark:border-zinc-800">
-                                    <p className="text-[9px] font-bold text-zinc-300 dark:text-zinc-600 uppercase tracking-[0.25em]">
-                                        FID Absensi v2.0 &bull; Laravel + React
-                                    </p>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
                     </div>
                 </div>

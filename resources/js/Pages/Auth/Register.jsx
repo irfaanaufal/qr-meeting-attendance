@@ -12,6 +12,7 @@ export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         username: '',
+        fid: '',
         email: '',
         password: '',
         password_confirmation: '',
@@ -24,6 +25,11 @@ export default function Register() {
         return 'light';
     });
 
+    const [step, setStep] = useState(1);
+    const [karyawanData, setKaryawanData] = useState(null);
+    const [checkError, setCheckError] = useState('');
+    const [checking, setChecking] = useState(false);
+
     const toggleTheme = () => {
         const nextTheme = theme === 'dark' ? 'light' : 'dark';
         if (nextTheme === 'dark') {
@@ -34,6 +40,53 @@ export default function Register() {
             localStorage.setItem('theme', 'light');
         }
         setTheme(nextTheme);
+    };
+
+    const handleCheckFid = async (e) => {
+        e.preventDefault();
+        if (!data.fid) {
+            setCheckError('Fingerprint ID (FID) wajib diisi.');
+            return;
+        }
+
+        setChecking(true);
+        setCheckError('');
+        setKaryawanData(null);
+
+        try {
+            const response = await fetch(route('register.check-karyawan', data.fid));
+            const result = await response.json();
+
+            if (!response.ok) {
+                setCheckError(result.message || 'Terjadi kesalahan saat memeriksa FID.');
+                setChecking(false);
+                return;
+            }
+
+            if (result.success) {
+                setKaryawanData(result.karyawan);
+                setData((prevData) => ({
+                    ...prevData,
+                    name: result.karyawan.nama_karyawan,
+                }));
+                setStep(2);
+            }
+        } catch (error) {
+            setCheckError('Gagal menghubungkan ke server. Coba lagi.');
+        } finally {
+            setChecking(false);
+        }
+    };
+
+    const handleReset = () => {
+        setStep(1);
+        setKaryawanData(null);
+        setCheckError('');
+        setData((prevData) => ({
+            ...prevData,
+            fid: '',
+            name: '',
+        }));
     };
 
     const submit = (e) => {
@@ -125,108 +178,186 @@ export default function Register() {
                             <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">Daftar sebagai host rapat untuk mulai menggunakan sistem.</p>
                         </motion.div>
 
-                        <form onSubmit={submit} className="space-y-4">
-                            {/* Nama Lengkap */}
-                            <motion.div variants={itemVariants}>
-                                <InputLabel htmlFor="name" value="Nama Lengkap" />
-                                <TextInput
-                                    id="name"
-                                    name="name"
-                                    value={data.name}
-                                    className="mt-1.5 block w-full"
-                                    autoComplete="name"
-                                    isFocused={true}
-                                    onChange={(e) => setData('name', e.target.value)}
-                                    placeholder="John Doe"
-                                    required
-                                />
-                                <InputError message={errors.name} className="mt-1.5" />
-                            </motion.div>
-
-                            {/* Username */}
-                            <motion.div variants={itemVariants}>
-                                <InputLabel htmlFor="username" value="Username" />
-                                <TextInput
-                                    id="username"
-                                    name="username"
-                                    value={data.username}
-                                    className="mt-1.5 block w-full"
-                                    autoComplete="username"
-                                    onChange={(e) => setData('username', e.target.value)}
-                                    placeholder="contoh: john_doe"
-                                    required
-                                />
-                                <InputError message={errors.username} className="mt-1.5" />
-                            </motion.div>
-
-                            {/* Email */}
-                            <motion.div variants={itemVariants}>
-                                <InputLabel htmlFor="email" value="Alamat Email" />
-                                <TextInput
-                                    id="email"
-                                    type="email"
-                                    name="email"
-                                    value={data.email}
-                                    className="mt-1.5 block w-full"
-                                    autoComplete="email"
-                                    onChange={(e) => setData('email', e.target.value)}
-                                    placeholder="nama@perusahaan.com"
-                                    required
-                                />
-                                <InputError message={errors.email} className="mt-1.5" />
-                            </motion.div>
-
-                            {/* Password */}
-                            <motion.div variants={itemVariants}>
-                                <InputLabel htmlFor="password" value="Password" />
-                                <TextInput
-                                    id="password"
-                                    type="password"
-                                    name="password"
-                                    value={data.password}
-                                    className="mt-1.5 block w-full"
-                                    autoComplete="new-password"
-                                    onChange={(e) => setData('password', e.target.value)}
-                                    placeholder="Min. 8 karakter"
-                                    required
-                                />
-                                <InputError message={errors.password} className="mt-1.5" />
-                            </motion.div>
-
-                            {/* Konfirmasi Password */}
-                            <motion.div variants={itemVariants}>
-                                <InputLabel htmlFor="password_confirmation" value="Konfirmasi Password" />
-                                <TextInput
-                                    id="password_confirmation"
-                                    type="password"
-                                    name="password_confirmation"
-                                    value={data.password_confirmation}
-                                    className="mt-1.5 block w-full"
-                                    autoComplete="new-password"
-                                    onChange={(e) => setData('password_confirmation', e.target.value)}
-                                    placeholder="Ulangi password"
-                                    required
-                                />
-                                <InputError message={errors.password_confirmation} className="mt-1.5" />
-                            </motion.div>
-
-                            {/* Submit Button */}
-                            <motion.div variants={itemVariants} className="pt-2">
-                                <PrimaryButton className="w-full py-3.5 text-xs font-bold uppercase tracking-widest shadow-md" disabled={processing}>
-                                    {processing ? (
-                                        <>
-                                            <svg className="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        {step === 1 ? (
+                            <form onSubmit={handleCheckFid} className="space-y-5">
+                                <motion.div variants={itemVariants}>
+                                    <InputLabel htmlFor="fid" value="Fingerprint ID (FID) Karyawan" />
+                                    <TextInput
+                                        id="fid"
+                                        name="fid"
+                                        value={data.fid}
+                                        className="mt-1.5 block w-full text-center text-lg font-bold tracking-widest bg-zinc-50 dark:bg-zinc-950 focus:scale-[1.01] transition-all"
+                                        onChange={(e) => setData('fid', e.target.value)}
+                                        placeholder="Contoh: 309"
+                                        autoFocus
+                                        required
+                                    />
+                                    {checkError && (
+                                        <p className="mt-2 text-sm text-red-600 dark:text-red-400 font-semibold flex items-center gap-1.5">
+                                            <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                                             </svg>
-                                            Mendaftarkan...
-                                        </>
-                                    ) : (
-                                        'Daftar Akun Baru'
+                                            {checkError}
+                                        </p>
                                     )}
-                                </PrimaryButton>
-                            </motion.div>
-                        </form>
+                                </motion.div>
+
+                                <motion.div variants={itemVariants} className="pt-2">
+                                    <PrimaryButton className="w-full py-3.5 text-xs font-bold uppercase tracking-widest shadow-md" disabled={checking}>
+                                        {checking ? (
+                                            <>
+                                                <svg className="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                                </svg>
+                                                Memeriksa...
+                                            </>
+                                        ) : (
+                                            'Periksa FID Karyawan'
+                                        )}
+                                    </PrimaryButton>
+                                </motion.div>
+                            </form>
+                        ) : (
+                            <form onSubmit={submit} className="space-y-4">
+                                {/* Employee Info Card */}
+                                <motion.div
+                                    variants={itemVariants}
+                                    className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 space-y-3"
+                                >
+                                    <div className="flex items-center justify-between border-b border-zinc-200/60 dark:border-zinc-800/60 pb-2">
+                                        <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-extrabold uppercase tracking-widest">
+                                            Data Karyawan Terdeteksi
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={handleReset}
+                                            className="text-[10px] text-red-500 hover:text-red-650 dark:text-red-400 font-extrabold hover:underline uppercase tracking-wider"
+                                        >
+                                            Ubah FID
+                                        </button>
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-2 text-xs">
+                                        <div>
+                                            <span className="block text-zinc-400 dark:text-zinc-500 font-semibold mb-0.5">FID</span>
+                                            <span className="font-extrabold text-zinc-800 dark:text-zinc-200">#{karyawanData?.fid}</span>
+                                        </div>
+                                        <div className="col-span-2">
+                                            <span className="block text-zinc-400 dark:text-zinc-500 font-semibold mb-0.5">Nama Karyawan</span>
+                                            <span className="font-extrabold text-zinc-800 dark:text-zinc-250">{karyawanData?.nama_karyawan}</span>
+                                        </div>
+                                        <div className="col-span-3 mt-1">
+                                            <span className="block text-zinc-400 dark:text-zinc-500 font-semibold mb-0.5">Divisi</span>
+                                            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-black bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                                                {karyawanData?.divisi}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </motion.div>
+
+                                {/* Nama Lengkap (Pre-filled from Karyawan name) */}
+                                <motion.div variants={itemVariants}>
+                                    <InputLabel htmlFor="name" value="Nama Lengkap" />
+                                    <TextInput
+                                        id="name"
+                                        name="name"
+                                        value={data.name}
+                                        className="mt-1.5 block w-full bg-zinc-100 dark:bg-zinc-800/40"
+                                        autoComplete="name"
+                                        onChange={(e) => setData('name', e.target.value)}
+                                        placeholder="Nama lengkap"
+                                        required
+                                        readOnly
+                                    />
+                                    <InputError message={errors.name} className="mt-1.5" />
+                                </motion.div>
+
+                                {/* Username */}
+                                <motion.div variants={itemVariants}>
+                                    <InputLabel htmlFor="username" value="Username" />
+                                    <TextInput
+                                        id="username"
+                                        name="username"
+                                        value={data.username}
+                                        className="mt-1.5 block w-full"
+                                        autoComplete="username"
+                                        onChange={(e) => setData('username', e.target.value)}
+                                        placeholder="contoh: john_doe"
+                                        required
+                                        autoFocus
+                                    />
+                                    <InputError message={errors.username} className="mt-1.5" />
+                                </motion.div>
+
+                                {/* Email */}
+                                <motion.div variants={itemVariants}>
+                                    <InputLabel htmlFor="email" value="Alamat Email" />
+                                    <TextInput
+                                        id="email"
+                                        type="email"
+                                        name="email"
+                                        value={data.email}
+                                        className="mt-1.5 block w-full"
+                                        autoComplete="email"
+                                        onChange={(e) => setData('email', e.target.value)}
+                                        placeholder="nama@perusahaan.com"
+                                        required
+                                    />
+                                    <InputError message={errors.email} className="mt-1.5" />
+                                </motion.div>
+
+                                {/* Password */}
+                                <motion.div variants={itemVariants}>
+                                    <InputLabel htmlFor="password" value="Password" />
+                                    <TextInput
+                                        id="password"
+                                        type="password"
+                                        name="password"
+                                        value={data.password}
+                                        className="mt-1.5 block w-full"
+                                        autoComplete="new-password"
+                                        onChange={(e) => setData('password', e.target.value)}
+                                        placeholder="Min. 8 karakter"
+                                        required
+                                    />
+                                    <InputError message={errors.password} className="mt-1.5" />
+                                </motion.div>
+
+                                {/* Konfirmasi Password */}
+                                <motion.div variants={itemVariants}>
+                                    <InputLabel htmlFor="password_confirmation" value="Konfirmasi Password" />
+                                    <TextInput
+                                        id="password_confirmation"
+                                        type="password"
+                                        name="password_confirmation"
+                                        value={data.password_confirmation}
+                                        className="mt-1.5 block w-full"
+                                        autoComplete="new-password"
+                                        onChange={(e) => setData('password_confirmation', e.target.value)}
+                                        placeholder="Ulangi password"
+                                        required
+                                    />
+                                    <InputError message={errors.password_confirmation} className="mt-1.5" />
+                                </motion.div>
+
+                                {/* Submit Button */}
+                                <motion.div variants={itemVariants} className="pt-2">
+                                    <PrimaryButton className="w-full py-3.5 text-xs font-bold uppercase tracking-widest shadow-md" disabled={processing}>
+                                        {processing ? (
+                                            <>
+                                                <svg className="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                                </svg>
+                                                Mendaftarkan...
+                                            </>
+                                        ) : (
+                                            'Daftar Akun Baru'
+                                        )}
+                                    </PrimaryButton>
+                                </motion.div>
+                            </form>
+                        )}
 
                         {/* Login Account Link */}
                         <motion.p

@@ -76,13 +76,11 @@ Route::get('/meetings', function () {
 
     $query = \App\Models\Meeting::withCount('absensi')
         ->with('user')
+        ->where('status', '!=', 'Ended')
         ->orderBy('created_at', 'desc');
 
     if ($user->role !== 'superadmin') {
-        $query->where(function ($q) use ($user) {
-            $q->where('user_id', $user->id)
-              ->orWhere('status', 'Ended');
-        });
+        $query->where('user_id', $user->id);
     }
 
     $meetings = $query->get();
@@ -107,7 +105,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/meetings/{id}/end', [MeetingController::class, 'end'])->name('meetings.end');
     Route::get('/meetings/{id}/print', [MeetingController::class, 'print'])->name('meetings.print');
     Route::delete('/meetings/{meetingId}/absensi/{absenId}', [MeetingController::class, 'destroyAbsen'])->name('meetings.absensi.destroy');
-
+    Route::get('/history', [MeetingController::class, 'history'])->name('meetings.history');
     Route::get('/karyawan', [KaryawanController::class, 'index'])->name('karyawan.index');
     Route::post('/karyawan', [KaryawanController::class, 'store'])->name('karyawan.store');
     Route::patch('/karyawan/{fid}', [KaryawanController::class, 'update'])->name('karyawan.update');

@@ -97,6 +97,29 @@ export default function Print({ meeting }) {
                     </div>
                 </div>
 
+                {/* Ringkasan Materi */}
+                <div className="mb-6">
+                    <h3 className="font-bold text-[14px] uppercase tracking-wide text-zinc-950 mb-2">
+                        <u>RINGKASAN MATERI</u>
+                    </h3>
+                    <div className="space-y-0">
+                        {textLines.length === 0 || (textLines.length === 1 && !textLines[0]) ? (
+                            <div className="min-h-[2.25rem] flex items-end pb-1 text-[14px] text-zinc-400 italic px-1">
+                                Belum ada ringkasan materi.
+                            </div>
+                        ) : (
+                            textLines.map((line, index) => (
+                                <div
+                                    key={index}
+                                    className="min-h-[2.25rem] flex items-end pb-1 text-[14px] leading-relaxed px-1 text-zinc-950"
+                                >
+                                    {line || '\u00A0'}
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+
                 {/* Attendance Table */}
                 <div className="mb-6">
                     <table className="w-full text-left text-[14px] border-collapse border border-zinc-400">
@@ -139,29 +162,6 @@ export default function Print({ meeting }) {
                             )}
                         </tbody>
                     </table>
-                </div>
-
-                {/* Ringkasan Materi */}
-                <div className="mb-6">
-                    <h3 className="font-bold text-[14px] uppercase tracking-wide text-zinc-950 mb-2">
-                        <u>RINGKASAN MATERI</u>
-                    </h3>
-                    <div className="space-y-0">
-                        {textLines.length === 0 || (textLines.length === 1 && !textLines[0]) ? (
-                            <div className="min-h-[2.25rem] flex items-end pb-1 text-[14px] text-zinc-400 italic px-1">
-                                Belum ada ringkasan materi.
-                            </div>
-                        ) : (
-                            textLines.map((line, index) => (
-                                <div
-                                    key={index}
-                                    className="min-h-[2.25rem] flex items-end pb-1 text-[14px] leading-relaxed px-1 text-zinc-950"
-                                >
-                                    {line || '\u00A0'}
-                                </div>
-                            ))
-                        )}
-                    </div>
                 </div>
 
                 {/* Print Button (Floating & Hidden on print) */}

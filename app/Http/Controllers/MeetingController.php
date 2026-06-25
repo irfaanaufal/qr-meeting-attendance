@@ -88,11 +88,9 @@ class MeetingController extends Controller
     public function showAbsenForm(Request $request, $id)
     {
         $meeting = Meeting::with('user')->findOrFail($id);
-        $alreadyAttendedOnDevice = $request->hasCookie('meeting_attended_' . $id);
 
         return Inertia::render('Meetings/FormAbsenPublik', [
             'meeting' => $meeting,
-            'alreadyAttendedOnDevice' => $alreadyAttendedOnDevice,
             'flash' => [
                 'success' => session('success'),
                 'error' => session('error'),
@@ -112,11 +110,6 @@ class MeetingController extends Controller
         ]);
 
         $meeting = Meeting::findOrFail($id);
-
-        // 0. Validate if the device has already checked in (anti-titip absen) - bypass for authenticated host/admin
-        if ($request->hasCookie('meeting_attended_' . $id) && !Auth::check()) {
-            return back()->with('error', 'Perangkat ini sudah digunakan untuk absensi rapat ini!');
-        }
 
         // 1. Validate if the meeting is still active/open
         if ($meeting->status !== 'On-Progress') {
@@ -151,11 +144,6 @@ class MeetingController extends Controller
         ]);
 
         $jamMenit = now()->timezone('Asia/Jakarta')->format('H:i');
-
-        // Queue a long-lived cookie to mark this device as checked in for this meeting - skip for authenticated hosts
-        if (!Auth::check()) {
-            cookie()->queue(cookie()->forever('meeting_attended_' . $meeting->id, 'true'));
-        }
 
         return back()->with('success', 'Terima kasih ' . $karyawan->nama_karyawan . ', kehadiran Anda berhasil dicatat pada ' . $jamMenit . '!');
     }
@@ -339,6 +327,29 @@ class MeetingController extends Controller
         }
 
         return back()->with('error', 'Tidak ada berkas untuk dihapus.');
+    }
+
+    /**
+     * Display a listing of completed (Ended) meetings.
+     */
+    public function history()
+    {
+        $user = Auth::user();
+
+        $query = Meeting::withCount('absensi')
+            ->with('user')
+            ->where('status', 'Ended')
+            ->orderBy('tanggal_jam', 'desc');
+
+        if ($user->role !== 'superadmin') {
+            $query->where('user_id', $user->id);
+        }
+
+        $meetings = $query->get();
+
+        return Inertia::render('History/Index', [
+            'meetings' => $meetings,
+        ]);
     }
 }
 

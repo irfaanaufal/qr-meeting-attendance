@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('nama_karyawan');
             $table->string('divisi')->nullable();
             $table->string('jabatan')->nullable();
+            $table->enum('status', ['Active', 'Inactive'])->default('Active');
             $table->timestamps();
         });
     }

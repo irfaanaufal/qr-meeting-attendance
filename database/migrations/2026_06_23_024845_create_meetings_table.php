@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('divisi_pemateri');
             $table->dateTime('tanggal_jam');
             $table->text('ringkasan')->nullable();
-            $table->enum('status', ['On-Progress', 'Closed'])->default('On-Progress');
+            $table->string('berkas')->nullable();
+            $table->enum('status', ['On-Progress', 'Closed', 'Ended'])->default('On-Progress');
             $table->timestamps();
         });
     }

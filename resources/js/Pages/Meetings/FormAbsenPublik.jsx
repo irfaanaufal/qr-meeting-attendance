@@ -4,19 +4,13 @@ import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import LightPullThemeSwitcher from '@/Components/LightPullThemeSwitcher';
 
-export default function FormAbsenPublik({ meeting, flash, errors, alreadyAttendedOnDevice }) {
+export default function FormAbsenPublik({ meeting, flash, errors }) {
     const { auth } = usePage().props;
     const isHost = auth?.user !== null && auth?.user !== undefined;
 
     const { data, setData, post, processing, reset } = useForm({ fid: '' });
 
-    if (flash?.error && typeof window !== 'undefined') {
-        localStorage.removeItem('has_attended_' + meeting.id);
-    }
-
-    const localCheck = typeof window !== 'undefined' ? localStorage.getItem('has_attended_' + meeting.id) === 'true' : false;
-    const isBlocked = !isHost && (alreadyAttendedOnDevice || localCheck) && !flash?.success;
-    const isDone = flash?.success || isBlocked;
+    const isDone = !!flash?.success;
     const isActive = meeting.status === 'On-Progress';
 
     const [theme, setTheme] = useState(() => {
@@ -41,10 +35,7 @@ export default function FormAbsenPublik({ meeting, flash, errors, alreadyAttende
     const submit = (e) => {
         e.preventDefault();
         post(route('absen.meeting.submit', meeting.id), {
-            onSuccess: (page) => {
-                if (page.props.flash?.success && !isHost) {
-                    localStorage.setItem('has_attended_' + meeting.id, 'true');
-                }
+            onSuccess: () => {
                 reset('fid');
             },
             preserveScroll: true,
@@ -151,14 +142,9 @@ export default function FormAbsenPublik({ meeting, flash, errors, alreadyAttende
                                         <div className="space-y-2">
                                             <h3 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight">Sukses!</h3>
                                             <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-5 text-sm text-zinc-700 dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-300 font-medium leading-relaxed shadow-sm">
-                                                {flash?.success ? flash.success : 'Anda sudah melakukan absensi pada rapat ini.'}
+                                                {flash?.success || 'Kehadiran Anda berhasil dicatat.'}
                                             </div>
                                         </div>
-                                        {isBlocked && (
-                                            <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium leading-relaxed px-2">
-                                                Demi integritas data, sistem membatasi 1 perangkat untuk 1 kali absensi per rapat.
-                                            </p>
-                                        )}
                                     </div>
                                 ) : (
                                     <>
