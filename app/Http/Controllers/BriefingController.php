@@ -81,7 +81,7 @@ class BriefingController extends Controller
 
         $protocol = $req->isSecure() ? 'https://' : 'http://';
         $portSuffix = ($port && !in_array($port, [80, 443])) ? ':' . $port : '';
-        $publicAbsenUrl = $protocol . $host . $portSuffix . '/absen/briefing/' . $briefing->id;
+        $publicAbsenUrl = $protocol . $host . $portSuffix . $req->getBaseUrl() . '/absen/briefing/' . $briefing->id;
 
         return Inertia::render('Briefings/DetailBriefing', [
             'briefing' => $briefing,

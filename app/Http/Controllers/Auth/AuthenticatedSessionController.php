@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Application;
+use App\Models\LogNotifikasi;
+use App\Models\User;
 use App\Models\UserApplication;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -40,6 +42,32 @@ class AuthenticatedSessionController extends Controller
                 ->first();
 
             if (!$userApp || !$userApp->is_active) {
+                // If the user has an account but has never requested access to this app,
+                // automatically create the pending request and notify the IT admins
+                if (!$userApp) {
+                    UserApplication::create([
+                        'user_id' => $user->id,
+                        'application_id' => $app->id,
+                        'is_active' => false,
+                    ]);
+
+                    $adminUsers = User::whereHas('roleRelation', fn($q) => $q->whereIn('name', ['superadmin', 'admin']))->get();
+                    $adminUsers->each(function ($admin) use ($user, $app) {
+                        LogNotifikasi::create([
+                            'user_id' => $admin->id,
+                            'ticket_id' => null,
+                            'actor_user_id' => $user->id,
+                            'actor_name' => $user->name,
+                            'recipient_type' => 'admin',
+                            'action' => 'new_access_request',
+                            'title' => 'Permintaan akses baru',
+                            'message' => $user->name . ' mengajukan akses ke "' . $app->name . '".',
+                            'status' => null,
+                            'visible_in_bell' => true,
+                        ]);
+                    });
+                }
+
                 Auth::guard('web')->logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();

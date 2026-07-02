@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, usePage } from '@inertiajs/react';
 
 export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsenUrl, flash }) {
-    const { auth } = usePage().props;
+    const { auth, storage_url, app_url } = usePage().props;
     const currentUser = auth.user;
     const canManage = currentUser.role === 'superadmin' || meeting.user_id === currentUser.id;
 
@@ -20,7 +20,7 @@ export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsen
         });
     };
 
-    const publicAbsenUrl = propPublicAbsenUrl || `${window.location.origin}/absen/meeting/${meeting.id}`;
+    const publicAbsenUrl = propPublicAbsenUrl || route('absen.meeting.show', meeting.id);
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(publicAbsenUrl)}`;
 
     const toggleMeetingStatus = () => {
@@ -192,7 +192,7 @@ export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsen
                                                             className="flex-shrink-0 rounded-xl px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-sm disabled:opacity-50 bg-zinc-100 hover:bg-amber-50 text-zinc-700 hover:text-amber-700 border border-zinc-200 hover:border-amber-200 dark:bg-zinc-800 dark:hover:bg-amber-950/20 dark:text-zinc-300 dark:hover:text-amber-400 dark:border-zinc-700 dark:hover:border-amber-900"
                                                         >
                                                             {isToggling ? 'Memproses...' : (
-                                                                meeting.absensi_dibuka ? '⏹ Tutup Absensi' : '🔓 Buka Absensi'
+                                                                meeting.absensi_dibuka ? '\u23F9 Tutup Absensi' : '\u{1F513} Buka Absensi'
                                                             )}
                                                         </button>
                                                     )}
@@ -202,7 +202,7 @@ export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsen
                                                             disabled={isToggling}
                                                             className="flex-shrink-0 rounded-xl px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-sm disabled:opacity-50 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-900 border border-zinc-200 hover:border-zinc-400 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 dark:hover:text-white dark:border-zinc-700 dark:hover:border-zinc-600"
                                                         >
-                                                            {isToggling ? 'Memproses...' : '⏹ Tutup Rapat'}
+                                                            {isToggling ? 'Memproses...' : '\u23F9 Tutup Rapat'}
                                                         </button>
                                                     ) : (
                                                         <button
@@ -210,7 +210,7 @@ export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsen
                                                             disabled={isToggling}
                                                             className="flex-shrink-0 rounded-xl px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-sm disabled:opacity-50 bg-red-600 hover:bg-red-700 text-white"
                                                         >
-                                                            {isToggling ? 'Memproses...' : '🛑 End Meeting'}
+                                                            {isToggling ? 'Memproses...' : '\u{1F6D1} End Meeting'}
                                                         </button>
                                                     )}
                                                 </>
@@ -263,7 +263,7 @@ export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsen
                                                     </div>
                                                     <div className="flex items-center gap-1.5 flex-shrink-0">
                                                         <a
-                                                            href={`/storage/${meeting.berkas}`}
+                                                            href={`${storage_url}/${meeting.berkas}`}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
                                                             className="p-1.5 rounded-lg bg-zinc-100 text-zinc-700 hover:bg-zinc-200 transition dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-750 flex items-center justify-center border border-zinc-200 dark:border-zinc-750"
@@ -275,7 +275,7 @@ export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsen
                                                             </svg>
                                                         </a>
                                                         <a
-                                                            href={`/storage/${meeting.berkas}`}
+                                                            href={`${storage_url}/${meeting.berkas}`}
                                                             download
                                                             className="p-1.5 rounded-lg bg-zinc-900 text-white hover:bg-zinc-850 transition dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-100 flex items-center justify-center"
                                                             title="Unduh Berkas"

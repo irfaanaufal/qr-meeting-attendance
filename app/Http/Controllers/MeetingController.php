@@ -69,7 +69,7 @@ class MeetingController extends Controller
         
         $protocol = $req->isSecure() ? 'https://' : 'http://';
         $portSuffix = ($port && !in_array($port, [80, 443])) ? ':' . $port : '';
-        $publicAbsenUrl = $protocol . $host . $portSuffix . '/absen/meeting/' . $meeting->id;
+        $publicAbsenUrl = $protocol . $host . $portSuffix . $req->getBaseUrl() . '/absen/meeting/' . $meeting->id;
  
         return Inertia::render('Meetings/DetailMeeting', [
             'meeting' => $meeting,

@@ -53,7 +53,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                         type="password"
                         className="mt-1.5 block w-full"
                         autoComplete="current-password"
-                        placeholder="••••••••"
+                        placeholder={"\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}
                     />
                     <InputError message={errors.current_password} />
                 </div>

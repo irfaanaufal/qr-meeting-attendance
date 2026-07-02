@@ -29,6 +29,15 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $baseUrl = $request->getBaseUrl();
+        if (env('STORAGE_URL')) {
+            $storageUrl = env('STORAGE_URL');
+        } elseif (str_ends_with($baseUrl, '/public')) {
+            $storageUrl = $request->getSchemeAndHttpHost() . substr($baseUrl, 0, -7) . '/storage/app/public';
+        } else {
+            $storageUrl = asset('storage');
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -38,6 +47,8 @@ class HandleInertiaRequests extends Middleware
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
             ],
+            'asset_url' => asset(''),
+            'storage_url' => $storageUrl,
         ];
     }
 }

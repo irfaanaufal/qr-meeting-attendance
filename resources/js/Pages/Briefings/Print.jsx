@@ -1,10 +1,27 @@
 import React, { useEffect } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 
 export default function Print({ briefing }) {
+    const { storage_url } = usePage().props;
+
     useEffect(() => {
-        window.print();
+        let cancelled = false;
+
+        const printWhenReady = () => {
+            if (cancelled) return;
+            const imgs = document.querySelectorAll('img');
+            const allLoaded = Array.from(imgs).every(img => img.complete);
+            if (allLoaded) {
+                window.print();
+            } else {
+                setTimeout(printWhenReady, 200);
+            }
+        };
+
+        setTimeout(printWhenReady, 100);
+
+        return () => { cancelled = true; };
     }, []);
 
     const formatDateIndonesian = (dateStr) => {
@@ -168,7 +185,7 @@ export default function Print({ briefing }) {
                                         <td className="cell-ttd">
                                             {item.karyawan?.signature ? (
                                                 <img
-                                                    src={`${baseUrl}/storage/${item.karyawan.signature.signature_path}`}
+                                                    src={`${storage_url}/${item.karyawan.signature.signature_path}`}
                                                     alt="Tanda Tangan"
                                                     className="ttd-img"
                                                 />
@@ -193,7 +210,7 @@ export default function Print({ briefing }) {
                         <div className="signature-space">
                             {briefing.user?.karyawan?.signature ? (
                                 <img
-                                    src={`${baseUrl}/storage/${briefing.user.karyawan.signature.signature_path}`}
+                                    src={`${storage_url}/${briefing.user.karyawan.signature.signature_path}`}
                                     alt="Tanda Tangan Pemateri"
                                     className="signature-img"
                                 />
@@ -224,7 +241,7 @@ export default function Print({ briefing }) {
                         }
                     }
 
-                    /* ── Kop Surat ── */
+                    /* -- Kop Surat -- */
                     .header {
                         display: flex;
                         justify-content: space-between;
@@ -259,7 +276,7 @@ export default function Print({ briefing }) {
                         width: auto;
                     }
 
-                    /* ── Metadata ── */
+                    /* -- Metadata -- */
                     .meta-table {
                         width: 100%;
                         border-collapse: collapse;
@@ -285,7 +302,7 @@ export default function Print({ briefing }) {
                         font-weight: normal;
                     }
 
-                    /* ── Section ── */
+                    /* -- Section -- */
                     .section {
                         margin-bottom: 20px;
                     }
@@ -296,7 +313,7 @@ export default function Print({ briefing }) {
                         margin: 0 0 8px 0;
                     }
 
-                    /* ── Transcript ── */
+                    /* -- Transcript -- */
                     .transcript-content {
                         padding: 0 2px;
                     }
@@ -308,7 +325,7 @@ export default function Print({ briefing }) {
                         line-height: 1.7;
                     }
 
-                    /* ── Tabel Kehadiran ── */
+                    /* -- Tabel Kehadiran -- */
                     .attendance-table {
                         width: 100%;
                         border-collapse: collapse;
@@ -379,7 +396,7 @@ export default function Print({ briefing }) {
                         font-style: italic;
                     }
 
-                    /* ── Signature ── */
+                    /* -- Signature -- */
                     .signature-section {
                         display: flex;
                         justify-content: flex-end;

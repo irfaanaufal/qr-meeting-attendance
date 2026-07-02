@@ -69,8 +69,17 @@ class SignatureController extends Controller
             return response()->json(['signature_url' => null]);
         }
 
+        $baseUrl = request()->getBaseUrl();
+        if (env('STORAGE_URL')) {
+            $storageUrl = env('STORAGE_URL');
+        } elseif (str_ends_with($baseUrl, '/public')) {
+            $storageUrl = request()->getSchemeAndHttpHost() . substr($baseUrl, 0, -7) . '/storage/app/public';
+        } else {
+            $storageUrl = asset('storage');
+        }
+
         return response()->json([
-            'signature_url' => Storage::url($signature->signature_path),
+            'signature_url' => rtrim($storageUrl, '/') . '/' . $signature->signature_path,
         ]);
     }
 

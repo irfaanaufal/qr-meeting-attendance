@@ -60,7 +60,7 @@ export default function Welcome({ auth }) {
                             <span className="text-zinc-400">Digital & Modern</span>
                         </h1>
                         <p className="text-lg text-zinc-500 font-medium leading-relaxed max-w-xl mb-10">
-                            Sistem absensi berbasis Fingerprint ID (FID) yang terintegrasi penuh — dari pembuatan rapat, QR Code, hingga laporan kehadiran real-time.
+                            Sistem absensi berbasis Fingerprint ID (FID) yang terintegrasi penuh - dari pembuatan rapat, QR Code, hingga laporan kehadiran real-time.
                         </p>
                         <div className="flex flex-wrap gap-3">
                             {auth.user ? (
@@ -102,7 +102,7 @@ export default function Welcome({ auth }) {
                                     </svg>
                                 ),
                                 title: 'Absen via QR & FID',
-                                desc: 'Karyawan scan QR, masukkan FID — sistem validasi otomatis.',
+                                desc: 'Karyawan scan QR, masukkan FID - sistem validasi otomatis.',
                             },
                             {
                                 icon: (

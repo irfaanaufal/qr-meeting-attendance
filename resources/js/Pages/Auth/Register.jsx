@@ -9,6 +9,25 @@ import ApplicationLogo from '@/Components/ApplicationLogo';
 import LightPullThemeSwitcher from '@/Components/LightPullThemeSwitcher';
 
 export default function Register() {
+    const getBgImageUrl = () => {
+        if (typeof window !== 'undefined') {
+            const pathname = window.location.pathname;
+            let basePath = '';
+            const markers = ['/public.index.php', '/public/index.php', '/public'];
+            for (const marker of markers) {
+                const idx = pathname.indexOf(marker);
+                if (idx !== -1) {
+                    basePath = pathname.substring(0, idx + marker.length);
+                    break;
+                }
+            }
+            if (basePath) {
+                return `${window.location.origin}${basePath}/images/login_bg.png`;
+            }
+        }
+        return '/images/login_bg.png';
+    };
+
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         username: '',
@@ -379,7 +398,7 @@ export default function Register() {
             {/* Right Panel: Image */}
             <div className="relative hidden w-1/2 md:block overflow-hidden">
                 <img
-                  src="/images/login_bg.png"
+                  src={getBgImageUrl()}
                   alt="Modern meeting room workspace background"
                   className="h-full w-full object-cover select-none pointer-events-none"
                 />

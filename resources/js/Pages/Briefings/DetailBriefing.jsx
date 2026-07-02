@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, usePage } from '@inertiajs/react';
 
 export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbsenUrl, flash }) {
-    const { auth } = usePage().props;
+    const { auth, storage_url, app_url } = usePage().props;
     const currentUser = auth.user;
     const canManage = currentUser.role === 'superadmin' || briefing.user_id === currentUser.id;
 
@@ -13,7 +13,7 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
     const [isEditingTranscript, setIsEditingTranscript] = useState(false);
     const [isSavingTranscript, setIsSavingTranscript] = useState(false);
 
-    const publicAbsenUrl = propPublicAbsenUrl || `${window.location.origin}/absen/briefing/${briefing.id}`;
+    const publicAbsenUrl = propPublicAbsenUrl || route('absen.briefing.show', briefing.id);
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(publicAbsenUrl)}`;
 
     const toggleAbsensi = () => {
@@ -161,7 +161,7 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
                                                         <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
                                                     </span>
                                                 )}
-                                                {isDraft ? (briefing.absensi_dibuka ? 'Draft — Absensi Dibuka' : 'Draft — Absensi Ditutup') : 'Selesai (Read-Only)'}
+                                                {isDraft ? (briefing.absensi_dibuka ? 'Draft - Absensi Dibuka' : 'Draft - Absensi Ditutup') : 'Selesai (Read-Only)'}
                                             </span>
                                             <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight leading-tight">
                                                 {briefing.judul_briefing}
@@ -177,7 +177,7 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
                                                             disabled={isProcessing}
                                                             className="flex-shrink-0 rounded-xl px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-sm disabled:opacity-50 bg-zinc-100 hover:bg-amber-50 text-zinc-700 hover:text-amber-700 border border-zinc-200 hover:border-amber-200 dark:bg-zinc-800 dark:hover:bg-amber-950/20 dark:text-zinc-300 dark:hover:text-amber-400 dark:border-zinc-700 dark:hover:border-amber-900"
                                                         >
-                                                            {isProcessing ? 'Memproses...' : '⏹ Tutup Absensi'}
+                                                            {isProcessing ? 'Memproses...' : '\u23F9 Tutup Absensi'}
                                                         </button>
                                                     ) : (
                                                         <button
@@ -185,7 +185,7 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
                                                             disabled={isProcessing}
                                                             className="flex-shrink-0 rounded-xl px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-sm disabled:opacity-50 bg-zinc-100 hover:bg-emerald-50 text-zinc-700 hover:text-emerald-700 border border-zinc-200 hover:border-emerald-200 dark:bg-zinc-800 dark:hover:bg-emerald-950/20 dark:text-zinc-300 dark:hover:text-emerald-400 dark:border-zinc-700 dark:hover:border-emerald-900"
                                                         >
-                                                            {isProcessing ? 'Memproses...' : '🔓 Buka Absensi'}
+                                                            {isProcessing ? 'Memproses...' : '\u{1F513} Buka Absensi'}
                                                         </button>
                                                     )}
                                                     <button
@@ -193,7 +193,7 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
                                                         disabled={isProcessing}
                                                         className="flex-shrink-0 rounded-xl px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-sm disabled:opacity-50 bg-zinc-900 hover:bg-zinc-700 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-900"
                                                     >
-                                                        {isProcessing ? 'Memproses...' : '✅ Selesaikan Briefing'}
+                                                        {isProcessing ? 'Memproses...' : '\u{2705} Selesaikan Briefing'}
                                                     </button>
                                                 </>
                                             )}
@@ -247,7 +247,7 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
                                             ) : briefing.recording_file ? (
                                                 <div className="space-y-2">
                                                     <audio controls className="w-full rounded-xl">
-                                                        <source src={`/storage/${briefing.recording_file}`} />
+                                                        <source src={`${storage_url}/${briefing.recording_file}`} />
                                                     </audio>
                                                     <div className="flex items-center justify-between gap-2">
                                                         <div className="flex items-center gap-2 text-xs text-zinc-500">
@@ -258,9 +258,9 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
                                                         </div>
                                                         <div className="flex items-center gap-1.5">
                                                             <a
-                                                                href={`/storage/${briefing.recording_file}`}
+                                                                href={`${storage_url}/${briefing.recording_file}`}
                                                                 download
-                                                                className="p-1.5 rounded-lg bg-zinc-900 text-white hover:bg-zinc-850 transition dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-100 flex items-center justify-center"
+                                                                className="p-1.5 rounded-lg bg-zinc-900 text-white hover:bg-zinc-855 transition dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-100 flex items-center justify-center"
                                                                 title="Unduh Rekaman"
                                                             >
                                                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">

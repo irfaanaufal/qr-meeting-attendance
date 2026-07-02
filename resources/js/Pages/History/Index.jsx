@@ -3,7 +3,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import React, { useState } from 'react';
 
 export default function HistoryIndex({ meetings }) {
-    const { auth, flash } = usePage().props;
+    const { auth, flash, storage_url } = usePage().props;
     const user = auth.user;
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -233,7 +233,7 @@ export default function HistoryIndex({ meetings }) {
                                                     <td className="whitespace-nowrap px-5 py-4 text-sm">
                                                         {meeting.berkas ? (
                                                             <a 
-                                                                href={`/storage/${meeting.berkas}`}
+                                                                href={`${storage_url}/${meeting.berkas}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 className="inline-flex items-center gap-1.5 font-bold text-zinc-855 hover:text-zinc-955 dark:text-zinc-300 dark:hover:text-white transition group/file text-xs"
