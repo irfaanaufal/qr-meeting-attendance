@@ -21,6 +21,23 @@ class MeetingHistoryTest extends TestCase
         Role::create(['name' => 'user']);
     }
 
+    protected function createUserWithAccess(array $attributes = []): User
+    {
+        $user = User::factory()->create($attributes);
+
+        $app = \App\Models\Application::firstOrCreate(
+            ['slug' => 'absensi-meeting'],
+            ['name' => 'Absensi Meeting', 'description' => 'Aplikasi Absensi Meeting Digital']
+        );
+        \App\Models\UserApplication::create([
+            'user_id' => $user->id,
+            'application_id' => $app->id,
+            'is_active' => true,
+        ]);
+
+        return $user;
+    }
+
     public function test_guest_cannot_access_history_page(): void
     {
         $response = $this->get('/history');
@@ -31,7 +48,7 @@ class MeetingHistoryTest extends TestCase
     public function test_authenticated_user_can_access_history_page(): void
     {
         $userRole = Role::where('name', 'user')->first();
-        $user = User::factory()->create(['role_id' => $userRole->id]);
+        $user = $this->createUserWithAccess(['role_id' => $userRole->id]);
 
         $response = $this->actingAs($user)->get('/history');
 
@@ -42,8 +59,8 @@ class MeetingHistoryTest extends TestCase
     {
         $userRole = Role::where('name', 'user')->first();
         
-        $user1 = User::factory()->create(['role_id' => $userRole->id]);
-        $user2 = User::factory()->create(['role_id' => $userRole->id]);
+        $user1 = $this->createUserWithAccess(['role_id' => $userRole->id]);
+        $user2 = $this->createUserWithAccess(['role_id' => $userRole->id]);
 
         // Meetings for user1
         $ended1 = Meeting::create([
@@ -135,7 +152,7 @@ class MeetingHistoryTest extends TestCase
         $userRole = Role::where('name', 'user')->first();
         $adminRole = Role::where('name', 'superadmin')->first();
 
-        $user = User::factory()->create(['role_id' => $userRole->id]);
+        $user = $this->createUserWithAccess(['role_id' => $userRole->id]);
         $superadmin = User::factory()->create(['role_id' => $adminRole->id]);
 
         // Meeting that is Ended

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function StatCards({ stats }) {
+export default function StatCards({ stats, briefingStats }) {
     const statCards = [
         {
             label: 'Total Rapat',
@@ -44,6 +44,16 @@ export default function StatCards({ stats }) {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                     <circle cx="9" cy="7" r="4" strokeLinecap="round" strokeLinejoin="round" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="m16 11 2 2 4-4" />
+                </svg>
+            )
+        },
+        {
+            label: 'Total Briefing',
+            value: briefingStats?.total ?? 0,
+            sub: briefingStats?.total > 0 ? `${briefingStats.draft} draft, ${briefingStats.selesai} selesai` : 'belum ada briefing',
+            icon: (
+                <svg className="w-5 h-5 text-zinc-400 dark:text-zinc-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
                 </svg>
             )
         },

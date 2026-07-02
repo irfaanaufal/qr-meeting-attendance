@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Karyawan extends Model
 {
@@ -28,5 +29,10 @@ class Karyawan extends Model
     public function absensi()
     {
         return $this->hasMany(AbsensiMeeting::class, 'karyawan_fid', 'fid');
+    }
+
+    public function signature(): MorphOne
+    {
+        return $this->morphOne(Signature::class, 'signable');
     }
 }

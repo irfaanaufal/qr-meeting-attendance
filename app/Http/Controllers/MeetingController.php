@@ -50,8 +50,7 @@ class MeetingController extends Controller
             }
         ])->findOrFail($id);
 
-        // Security check: Only the creator (host), superadmin, or any host if the meeting is Ended
-        if ($meeting->user_id !== Auth::id() && Auth::user()->role !== 'superadmin' && $meeting->status !== 'Ended') {
+        if ($meeting->user_id !== Auth::id() && !Auth::user()->isSuperAdmin() && $meeting->status !== 'Ended') {
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki otoritas untuk melihat rincian rapat ini.');
         }
 
@@ -115,6 +114,9 @@ class MeetingController extends Controller
         if ($meeting->status !== 'On-Progress') {
             return back()->with('error', 'Maaf, absensi untuk rapat ini telah ditutup.');
         }
+        if (!$meeting->absensi_dibuka) {
+            return back()->with('error', 'Maaf, absensi untuk rapat ini sedang ditutup.');
+        }
 
         // 2. Validate if the FID exists in the active employee master list
         $karyawan = Karyawan::where('fid', $request->fid)->first();
@@ -152,8 +154,7 @@ class MeetingController extends Controller
     {
         $meeting = Meeting::findOrFail($id);
 
-        // Authorization check - ensure only the creator or super admin can toggle status
-        if ($meeting->user_id !== Auth::id() && Auth::user()->role !== 'superadmin') {
+        if ($meeting->user_id !== Auth::id() && !Auth::user()->isSuperAdmin()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk mengubah status rapat ini.');
         }
 
@@ -169,16 +170,37 @@ class MeetingController extends Controller
         return back()->with('success', $statusMessage);
     }
 
+    public function toggleAbsensi($id)
+    {
+        $meeting = Meeting::findOrFail($id);
+
+        if ($meeting->user_id !== Auth::id() && !Auth::user()->isSuperAdmin()) {
+            return back()->with('error', 'Anda tidak memiliki otoritas untuk mengubah status absensi rapat ini.');
+        }
+
+        if ($meeting->status === 'Ended') {
+            return back()->with('error', 'Rapat sudah diakhiri.');
+        }
+
+        $meeting->absensi_dibuka = !$meeting->absensi_dibuka;
+        $meeting->save();
+
+        $statusMessage = $meeting->absensi_dibuka
+            ? 'Absensi dibuka. Karyawan bisa melakukan absensi.'
+            : 'Absensi ditutup. Karyawan tidak bisa absen lagi.';
+
+        return back()->with('success', $statusMessage);
+    }
+
     public function update(Request $request, $id)
     {
         $meeting = Meeting::findOrFail($id);
 
-        // Authorization check - ensure only the creator or super admin can update
-        if ($meeting->user_id !== Auth::id() && Auth::user()->role !== 'superadmin') {
+        if ($meeting->user_id !== Auth::id() && !Auth::user()->isSuperAdmin()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk memperbarui rapat ini.');
         }
 
-        if ($meeting->status === 'Ended' && Auth::user()->role !== 'superadmin') {
+        if ($meeting->status === 'Ended' && !Auth::user()->isSuperAdmin()) {
             return back()->with('error', 'Rapat sudah diakhiri secara permanen. Notulensi hanya bisa diubah oleh Super Admin.');
         }
 
@@ -200,7 +222,7 @@ class MeetingController extends Controller
     {
         $meeting = Meeting::findOrFail($id);
 
-        if ($meeting->user_id !== Auth::id() && Auth::user()->role !== 'superadmin') {
+        if ($meeting->user_id !== Auth::id() && !Auth::user()->isSuperAdmin()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk mengakhiri rapat ini.');
         }
 
@@ -209,6 +231,7 @@ class MeetingController extends Controller
         }
 
         $meeting->status = 'Ended';
+        $meeting->absensi_dibuka = false;
         $meeting->save();
 
         return back()->with('success', 'Rapat telah diakhiri secara permanen (Read Only).');
@@ -220,13 +243,13 @@ class MeetingController extends Controller
     public function print($id)
     {
         $meeting = Meeting::with([
-            'user', 
+            'user.karyawan.signature', 
             'absensi' => function ($query) {
-                $query->with('karyawan')->orderBy('jam_absen', 'asc');
+                $query->with('karyawan.signature')->orderBy('jam_absen', 'asc');
             }
         ])->findOrFail($id);
 
-        if ($meeting->user_id !== Auth::id() && Auth::user()->role !== 'superadmin' && $meeting->status !== 'Ended') {
+        if ($meeting->user_id !== Auth::id() && !Auth::user()->isSuperAdmin() && $meeting->status !== 'Ended') {
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki otoritas untuk mencetak rapat ini.');
         }
 
@@ -242,8 +265,7 @@ class MeetingController extends Controller
     {
         $meeting = Meeting::findOrFail($meetingId);
 
-        // Security check: Only the creator (host) or superadmin can delete
-        if ($meeting->user_id !== Auth::id() && Auth::user()->role !== 'superadmin') {
+        if ($meeting->user_id !== Auth::id() && !Auth::user()->isSuperAdmin()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk menghapus data absensi ini.');
         }
 
@@ -265,8 +287,7 @@ class MeetingController extends Controller
     {
         $meeting = Meeting::findOrFail($id);
 
-        // Security check: Only the creator (host) or superadmin can upload
-        if ($meeting->user_id !== Auth::id() && Auth::user()->role !== 'superadmin') {
+        if ($meeting->user_id !== Auth::id() && !Auth::user()->isSuperAdmin()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk mengunggah berkas rapat ini.');
         }
 
@@ -307,8 +328,7 @@ class MeetingController extends Controller
     {
         $meeting = Meeting::findOrFail($id);
 
-        // Security check: Only the creator (host) or superadmin can delete
-        if ($meeting->user_id !== Auth::id() && Auth::user()->role !== 'superadmin') {
+        if ($meeting->user_id !== Auth::id() && !Auth::user()->isSuperAdmin()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk menghapus berkas rapat ini.');
         }
 
@@ -341,7 +361,7 @@ class MeetingController extends Controller
             ->where('status', 'Ended')
             ->orderBy('tanggal_jam', 'desc');
 
-        if ($user->role !== 'superadmin') {
+        if (!$user->isSuperAdmin()) {
             $query->where('user_id', $user->id);
         }
 

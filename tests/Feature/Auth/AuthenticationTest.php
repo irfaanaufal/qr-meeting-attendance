@@ -21,6 +21,16 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
+        $app = \App\Models\Application::firstOrCreate(
+            ['slug' => 'absensi-meeting'],
+            ['name' => 'Absensi Meeting', 'description' => 'Aplikasi Absensi Meeting Digital']
+        );
+        \App\Models\UserApplication::create([
+            'user_id' => $user->id,
+            'application_id' => $app->id,
+            'is_active' => true,
+        ]);
+
         $response = $this->post('/login', [
             'username' => $user->username,
             'password' => 'password',

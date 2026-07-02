@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
+import Swal from 'sweetalert2';
 import Checkbox from '@/Components/Checkbox';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
@@ -37,7 +38,20 @@ export default function Login({ status, canResetPassword }) {
 
     const submit = (e) => {
         e.preventDefault();
-        post(route('login'), { onFinish: () => reset('password') });
+        post(route('login'), {
+            onError: (errs) => {
+                if (errs.activation_needed) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Akun Belum Diaktifkan',
+                        text: errs.activation_needed,
+                        confirmButtonText: 'Hubungi Tim IT',
+                        confirmButtonColor: '#6366f1',
+                    });
+                }
+            },
+            onFinish: () => reset('password'),
+        });
     };
 
     // Animation variants for staggering children

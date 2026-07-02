@@ -17,10 +17,12 @@ class Meeting extends Model
         'ringkasan',
         'status',
         'berkas',
+        'absensi_dibuka',
     ];
 
     protected $casts = [
         'tanggal_jam' => 'datetime',
+        'absensi_dibuka' => 'boolean',
     ];
 
     public function user()

@@ -11,7 +11,7 @@ export default function FormAbsenPublik({ meeting, flash, errors }) {
     const { data, setData, post, processing, reset } = useForm({ fid: '' });
 
     const isDone = !!flash?.success;
-    const isActive = meeting.status === 'On-Progress';
+    const isActive = meeting.status === 'On-Progress' && meeting.absensi_dibuka;
 
     const [theme, setTheme] = useState(() => {
         if (typeof window !== 'undefined') {

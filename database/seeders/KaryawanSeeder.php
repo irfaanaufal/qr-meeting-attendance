@@ -142,6 +142,7 @@ class KaryawanSeeder extends Seeder
                     'nama_karyawan' => $karyawan['nama_karyawan'],
                     'divisi' => $karyawan['divisi'] ?? null,
                     'jabatan' => $karyawan['jabatan'] ?? null,
+                    'status' => 'Active',
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]

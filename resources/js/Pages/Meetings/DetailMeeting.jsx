@@ -31,6 +31,14 @@ export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsen
         });
     };
 
+    const toggleAbsensi = () => {
+        setIsToggling(true);
+        router.post(route('meetings.toggle-absensi', meeting.id), {}, {
+            preserveScroll: true,
+            onFinish: () => setIsToggling(false),
+        });
+    };
+
     const endMeeting = () => {
         if (confirm('Apakah Anda yakin ingin mengakhiri rapat ini secara permanen? Rapat akan masuk ke mode Read Only.')) {
             setIsToggling(true);
@@ -144,27 +152,30 @@ export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsen
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
 
                         {/* Left: Meeting Info + Attendees */}
-                        <div className={`space-y-6 ${isActive ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
+                        <div className={`space-y-6 ${isActive && meeting.absensi_dibuka ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
 
                             {/* Meeting Info Card */}
                             <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm overflow-hidden dark:bg-zinc-900 dark:border-zinc-800">
                                 {/* Status bar */}
-                                <div className={`h-1.5 w-full ${isActive ? 'bg-zinc-900 dark:bg-white' : 'bg-zinc-300 dark:bg-zinc-800'}`} />
+                                <div className={`h-1.5 w-full ${isActive && meeting.absensi_dibuka ? 'bg-zinc-900 dark:bg-white' : 'bg-zinc-300 dark:bg-zinc-800'}`} />
                                 <div className="p-6">
                                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                                         <div className="space-y-2">
                                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-wider border ${
-                                                isActive
+                                                isActive && meeting.absensi_dibuka
                                                     ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-zinc-950 dark:border-white'
                                                     : 'bg-zinc-100 text-zinc-500 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-750'
                                             }`}>
-                                                {isActive && (
+                                                {isActive && meeting.absensi_dibuka && (
                                                     <span className="relative flex h-1.5 w-1.5">
                                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white dark:bg-zinc-950 opacity-75"></span>
                                                         <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white dark:bg-zinc-950"></span>
                                                     </span>
                                                 )}
-                                                {isActive ? 'Pendaftaran Dibuka' : isClosed ? 'Absensi Ditutup' : 'Rapat Selesai (Read-Only)'}
+                                                {isActive && meeting.absensi_dibuka ? 'Pendaftaran Dibuka'
+                                                    : isActive && !meeting.absensi_dibuka ? 'Absensi Ditutup'
+                                                    : isClosed ? 'Rapat Ditutup'
+                                                    : 'Rapat Selesai (Read-Only)'}
                                             </span>
                                             <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight leading-tight">
                                                 {meeting.judul_rapat}
@@ -174,13 +185,24 @@ export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsen
                                         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                                             {canManage && !isEnded && (
                                                 <>
+                                                    {isActive && (
+                                                        <button
+                                                            onClick={toggleAbsensi}
+                                                            disabled={isToggling}
+                                                            className="flex-shrink-0 rounded-xl px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-sm disabled:opacity-50 bg-zinc-100 hover:bg-amber-50 text-zinc-700 hover:text-amber-700 border border-zinc-200 hover:border-amber-200 dark:bg-zinc-800 dark:hover:bg-amber-950/20 dark:text-zinc-300 dark:hover:text-amber-400 dark:border-zinc-700 dark:hover:border-amber-900"
+                                                        >
+                                                            {isToggling ? 'Memproses...' : (
+                                                                meeting.absensi_dibuka ? '⏹ Tutup Absensi' : '🔓 Buka Absensi'
+                                                            )}
+                                                        </button>
+                                                    )}
                                                     {isActive ? (
                                                         <button
                                                             onClick={toggleMeetingStatus}
                                                             disabled={isToggling}
-                                                            className="flex-shrink-0 rounded-xl px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-sm disabled:opacity-50 bg-zinc-100 hover:bg-amber-50 text-zinc-700 hover:text-amber-700 border border-zinc-200 hover:border-amber-200 dark:bg-zinc-800 dark:hover:bg-amber-950/20 dark:text-zinc-300 dark:hover:text-amber-400 dark:border-zinc-700 dark:hover:border-amber-900"
+                                                            className="flex-shrink-0 rounded-xl px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all shadow-sm disabled:opacity-50 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-900 border border-zinc-200 hover:border-zinc-400 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 dark:hover:text-white dark:border-zinc-700 dark:hover:border-zinc-600"
                                                         >
-                                                            {isToggling ? 'Memproses...' : '⏹ Tutup Absensi'}
+                                                            {isToggling ? 'Memproses...' : '⏹ Tutup Rapat'}
                                                         </button>
                                                     ) : (
                                                         <button
@@ -448,7 +470,7 @@ export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsen
                         </div>
 
                         {/* Right: QR Code */}
-                        {isActive && (
+                        {isActive && meeting.absensi_dibuka && (
                             <div>
                                 <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm overflow-hidden sticky top-6 dark:bg-zinc-900 dark:border-zinc-800">
                                     <div className="bg-zinc-900 px-6 py-4 text-center dark:bg-zinc-950">

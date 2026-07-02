@@ -1,6 +1,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import React, { useState } from 'react';
+import axios from 'axios';
+import SignaturePad from '@/Components/SignaturePad';
 
 export default function KaryawanIndex({ karyawans }) {
     const { flash } = usePage().props;
@@ -11,6 +13,10 @@ export default function KaryawanIndex({ karyawans }) {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingKaryawan, setEditingKaryawan] = useState(null);
+    const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+    const [signatureKaryawan, setSignatureKaryawan] = useState(null);
+    const [signatureUrl, setSignatureUrl] = useState(null);
+    const [isLoadingSignature, setIsLoadingSignature] = useState(false);
 
     // Form for Adding Karyawan
     const addForm = useForm({
@@ -59,6 +65,33 @@ export default function KaryawanIndex({ karyawans }) {
             status: karyawan.status || 'Active',
         });
         setIsEditModalOpen(true);
+    };
+
+    const openSignatureModal = async (karyawan) => {
+        setSignatureKaryawan(karyawan);
+        setSignatureUrl(null);
+        setIsSignatureModalOpen(true);
+        setIsLoadingSignature(true);
+        try {
+            const res = await axios.get(route('signatures.show', karyawan.fid));
+            setSignatureUrl(res.data.signature_url);
+        } catch (err) {
+            console.error('Failed to load signature:', err);
+        } finally {
+            setIsLoadingSignature(false);
+        }
+    };
+
+    const handleSignatureSaved = () => {
+        setIsSignatureModalOpen(false);
+        setSignatureKaryawan(null);
+        window.location.reload();
+    };
+
+    const handleSignatureDeleted = () => {
+        setIsSignatureModalOpen(false);
+        setSignatureKaryawan(null);
+        window.location.reload();
     };
 
     const handleEditSubmit = (e) => {
@@ -258,6 +291,12 @@ export default function KaryawanIndex({ karyawans }) {
                                                             className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 font-bold text-xs uppercase tracking-wider transition border border-zinc-200 dark:border-zinc-700"
                                                         >
                                                             Edit
+                                                        </button>
+                                                        <button
+                                                            onClick={() => openSignatureModal(karyawan)}
+                                                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white hover:bg-zinc-50 text-zinc-600 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-400 font-bold text-xs uppercase tracking-wider transition"
+                                                        >
+                                                            Tanda Tangan
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -487,6 +526,42 @@ export default function KaryawanIndex({ karyawans }) {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Signature Modal */}
+            {isSignatureModalOpen && signatureKaryawan && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-2xl w-full max-w-lg overflow-hidden transform transition-all duration-200">
+                        <div className="px-6 py-4 bg-zinc-900 text-white dark:bg-zinc-950 flex items-center justify-between">
+                            <div>
+                                <h3 className="font-extrabold text-sm tracking-wide uppercase">Tanda Tangan Digital</h3>
+                                <p className="text-[10px] text-zinc-400 font-semibold mt-0.5">{signatureKaryawan.nama_karyawan} &bull; FID: #{signatureKaryawan.fid}</p>
+                            </div>
+                            <button onClick={() => { setIsSignatureModalOpen(false); setSignatureKaryawan(null); }} className="text-zinc-400 hover:text-white transition">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="p-6">
+                            {isLoadingSignature ? (
+                                <div className="flex items-center justify-center py-8">
+                                    <svg className="animate-spin h-6 w-6 text-zinc-400" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                    </svg>
+                                </div>
+                            ) : (
+                                <SignaturePad
+                                    karyawanFid={signatureKaryawan.fid}
+                                    existingUrl={signatureUrl}
+                                    onSaved={handleSignatureSaved}
+                                    onDeleted={handleSignatureDeleted}
+                                />
+                            )}
+                        </div>
                     </div>
                 </div>
             )}

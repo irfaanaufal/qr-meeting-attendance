@@ -5,7 +5,7 @@ import StatCards from './Dashboard/Partials/StatCards';
 import DashboardCharts from './Dashboard/Partials/DashboardCharts';
 import RecentMeetings from './Dashboard/Partials/RecentMeetings';
 
-export default function Dashboard({ stats, divisiData, dailyData, recentMeetings }) {
+export default function Dashboard({ stats, briefingStats, divisiData, dailyData, recentMeetings }) {
     const { auth, flash } = usePage().props;
     const user = auth.user;
 
@@ -39,7 +39,7 @@ export default function Dashboard({ stats, divisiData, dailyData, recentMeetings
                     )}
 
                     <div className="flex-shrink-0">
-                        <StatCards stats={stats} />
+                        <StatCards stats={stats} briefingStats={briefingStats} />
                     </div>
 
                     <div className="flex-shrink-0">
