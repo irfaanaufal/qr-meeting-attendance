@@ -19,7 +19,7 @@ export default function Login({ status, canResetPassword }) {
             for (const marker of markers) {
                 const idx = pathname.indexOf(marker);
                 if (idx !== -1) {
-                    basePath = pathname.substring(0, idx + marker.length);
+                    basePath = pathname.substring(0, idx + marker.length).replace(/\/?index\.php$/, '');
                     break;
                 }
             }

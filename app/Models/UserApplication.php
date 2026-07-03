@@ -14,6 +14,7 @@ class UserApplication extends Model
         'is_active',
         'approved_by',
         'approved_at',
+        'role_id',
     ];
 
     protected function casts(): array
@@ -37,5 +38,10 @@ class UserApplication extends Model
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
     }
 }

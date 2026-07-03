@@ -82,11 +82,23 @@ class User extends Authenticatable
 
     public function isSuperAdmin(): bool
     {
-        return $this->roleRelation?->name === 'superadmin';
+        $appRole = $this->getApplicationRole();
+        return $appRole ? $appRole === 'superadmin' : $this->roleRelation?->name === 'superadmin';
     }
 
     public function isAdmin(): bool
     {
-        return in_array($this->roleRelation?->name, ['superadmin', 'admin']);
+        $appRole = $this->getApplicationRole();
+        return $appRole ? in_array($appRole, ['superadmin', 'admin']) : in_array($this->roleRelation?->name, ['superadmin', 'admin']);
+    }
+
+    private function getApplicationRole(): ?string
+    {
+        $userApp = $this->userApplications()
+            ->whereHas('application', fn($q) => $q->where('slug', 'absensi-meeting'))
+            ->with('role')
+            ->first();
+
+        return $userApp?->role?->name;
     }
 }

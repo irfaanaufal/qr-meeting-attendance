@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\LogNotifikasiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MeetingController;
@@ -154,16 +153,8 @@ Route::middleware(['auth', 'applications.access'])->group(function () {
     Route::get('/briefing-history', [BriefingController::class, 'history'])->name('briefings.history');
 });
 
-// Auth routes (applications, notifikasi, admin)
+// API Notifikasi
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index');
-    Route::post('/applications/request', [ApplicationController::class, 'requestAccess'])->name('applications.request');
-    Route::get('/admin/applications/requests', [ApplicationController::class, 'requests'])->name('admin.applications.requests');
-    Route::patch('/applications/toggle', [ApplicationController::class, 'toggleAccess'])->name('applications.toggle');
-    Route::get('/admin/applications', [ApplicationController::class, 'manage'])->name('admin.applications.manage');
-    Route::post('/admin/applications', [ApplicationController::class, 'store'])->name('admin.applications.store');
-
-    // API Notifikasi
     Route::get('/api/notifications', [LogNotifikasiController::class, 'index'])->name('api.notifications');
     Route::patch('/api/notifications/read-all', [LogNotifikasiController::class, 'markAllRead'])->name('api.notifications.read-all');
 });

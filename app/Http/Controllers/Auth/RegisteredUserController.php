@@ -70,31 +70,30 @@ class RegisteredUserController extends Controller
         $user->save();
 
         // Automatically request access to 'absensi-meeting' and notify admins
-        $app = Application::firstOrCreate(
-            ['slug' => 'absensi-meeting'],
-            ['name' => 'Absensi Meeting', 'description' => 'Aplikasi Absensi Meeting Digital']
-        );
+        $app = Application::find(config('app.application_id'));
 
-        UserApplication::updateOrCreate(
-            ['user_id' => $user->id, 'application_id' => $app->id],
-            ['is_active' => false]
-        );
+        if ($app) {
+            UserApplication::updateOrCreate(
+                ['user_id' => $user->id, 'application_id' => $app->id],
+                ['is_active' => false]
+            );
 
-        $adminUsers = User::whereHas('roleRelation', fn($q) => $q->whereIn('name', ['superadmin', 'admin']))->get();
-        $adminUsers->each(function ($admin) use ($user, $app) {
-            LogNotifikasi::create([
-                'user_id' => $admin->id,
-                'ticket_id' => null,
-                'actor_user_id' => $user->id,
-                'actor_name' => $user->name,
-                'recipient_type' => 'admin',
-                'action' => 'new_access_request',
-                'title' => 'Permintaan akses baru',
-                'message' => $user->name . ' mengajukan akses ke "' . $app->name . '".',
-                'status' => null,
-                'visible_in_bell' => true,
-            ]);
-        });
+            $adminUsers = User::whereHas('roleRelation', fn($q) => $q->whereIn('name', ['superadmin', 'admin']))->get();
+            $adminUsers->each(function ($admin) use ($user, $app) {
+                LogNotifikasi::create([
+                    'user_id' => $admin->id,
+                    'ticket_id' => null,
+                    'actor_user_id' => $user->id,
+                    'actor_name' => $user->name,
+                    'recipient_type' => 'admin',
+                    'action' => 'new_access_request',
+                    'title' => 'Permintaan akses baru',
+                    'message' => $user->name . ' mengajukan akses ke "' . $app->name . '".',
+                    'status' => null,
+                    'visible_in_bell' => true,
+                ]);
+            });
+        }
 
         event(new Registered($user));
 
