@@ -55,7 +55,7 @@ export default function Print({ briefing }) {
     const attendees = briefing.absensi || [];
     const baseUrl = window.location.origin;
     const transcriptText = briefing.transcript || '';
-    const textLines = transcriptText ? transcriptText.split('\n').filter(line => line.trim()) : [];
+    const hasTranscript = transcriptText && transcriptText.replace(/<[^>]*>/g, '').trim();
 
     return (
         <div className="print-wrapper">
@@ -123,7 +123,7 @@ export default function Print({ briefing }) {
                         <tr>
                             <td className="meta-label">PEMATERI</td>
                             <td className="meta-sep">:</td>
-                            <td className="meta-value">{briefing.user?.name || '-'}</td>
+                            <td className="meta-value">{briefing.pemateri?.nama_karyawan || briefing.user?.name || '-'}</td>
                         </tr>
                         <tr>
                             <td className="meta-label">HARI / TANGGAL</td>
@@ -144,14 +144,10 @@ export default function Print({ briefing }) {
                 </table>
 
                 {/* Isi Briefing */}
-                {textLines.length > 0 && (
+                {hasTranscript && (
                     <div className="section avoid-break">
                         <h3 className="section-title">ISI BRIEFING</h3>
-                        <div className="transcript-content">
-                            {textLines.map((line, i) => (
-                                <p key={i} className="transcript-paragraph">{line}</p>
-                            ))}
-                        </div>
+                        <div className="transcript-content" dangerouslySetInnerHTML={{ __html: transcriptText }} />
                     </div>
                 )}
 
@@ -196,9 +192,6 @@ export default function Print({ briefing }) {
                             )}
                         </tbody>
                     </table>
-                    <p className="table-footer">
-                        Jumlah Peserta Hadir: {attendees.length} Orang
-                    </p>
                 </div>
 
                 {/* Tanda Tangan Pemateri */}
@@ -317,10 +310,20 @@ export default function Print({ briefing }) {
                     .transcript-content {
                         padding: 0 2px;
                     }
-                    .transcript-paragraph {
+                    .transcript-content p {
                         text-indent: 30px;
                         text-align: justify;
                         margin: 0 0 6px 0;
+                        font-size: 12pt;
+                        line-height: 1.7;
+                    }
+                    .transcript-content ul, .transcript-content ol {
+                        margin: 6px 0 6px 30px;
+                        padding-left: 20px;
+                    }
+                    .transcript-content li {
+                        text-align: justify;
+                        margin: 0 0 4px 0;
                         font-size: 12pt;
                         line-height: 1.7;
                     }

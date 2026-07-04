@@ -13,6 +13,7 @@ class Briefing extends Model
 
     protected $fillable = [
         'user_id',
+        'pemateri_fid',
         'judul_briefing',
         'divisi_pemateri',
         'tanggal_jam',
@@ -34,6 +35,11 @@ class Briefing extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function pemateri()
+    {
+        return $this->belongsTo(Karyawan::class, 'pemateri_fid', 'fid');
     }
 
     public function absensi()

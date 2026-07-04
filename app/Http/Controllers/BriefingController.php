@@ -19,7 +19,7 @@ class BriefingController extends Controller
         $user = Auth::user();
 
         $query = Briefing::withCount('absensi')
-            ->with('user')
+            ->with(['user', 'pemateri'])
             ->where('status', 'Draft')
             ->orderBy('created_at', 'desc');
 
@@ -36,16 +36,8 @@ class BriefingController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'judul_briefing' => 'required|string|max:255',
-        ]);
-
-        $user = Auth::user();
-
         $briefing = Briefing::create([
-            'user_id' => $user->id,
-            'judul_briefing' => $validated['judul_briefing'],
-            'divisi_pemateri' => $user->divisi ?? 'Umum',
+            'user_id' => Auth::id(),
             'tanggal_jam' => now(),
             'status' => 'Draft',
             'absensi_dibuka' => true,
@@ -59,12 +51,15 @@ class BriefingController extends Controller
     {
         $briefing = Briefing::with([
             'user',
+            'pemateri',
             'absensi' => function ($query) {
                 $query->with('karyawan')->orderBy('jam_absen', 'asc');
             }
         ])->findOrFail($id);
 
-        if ($briefing->user_id !== Auth::id() && !Auth::user()->isSuperAdmin() && $briefing->status !== 'Selesai') {
+        $isCreator = $briefing->user_id === Auth::id();
+        $isPresenter = $briefing->pemateri_fid && Auth::user()->fid === $briefing->pemateri_fid;
+        if (!$isCreator && !$isPresenter && !Auth::user()->isSuperAdmin() && $briefing->status !== 'Selesai') {
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki otoritas untuk melihat briefing ini.');
         }
 
@@ -95,7 +90,7 @@ class BriefingController extends Controller
 
     public function showAbsenForm($id)
     {
-        $briefing = Briefing::with('user')->findOrFail($id);
+        $briefing = Briefing::with(['user', 'pemateri'])->findOrFail($id);
 
         return Inertia::render('Briefings/FormAbsenPublik', [
             'briefing' => $briefing,
@@ -156,7 +151,9 @@ class BriefingController extends Controller
     {
         $briefing = Briefing::findOrFail($id);
 
-        if ($briefing->user_id !== Auth::id() && !Auth::user()->isSuperAdmin()) {
+        $isCreator = $briefing->user_id === Auth::id();
+        $isPresenter = $briefing->pemateri_fid && Auth::user()->fid === $briefing->pemateri_fid;
+        if (!$isCreator && !$isPresenter && !Auth::user()->isSuperAdmin()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk memperbarui briefing ini.');
         }
 
@@ -165,21 +162,43 @@ class BriefingController extends Controller
         }
 
         $validated = $request->validate([
+            'judul_briefing' => 'nullable|string|max:255',
+            'pemateri_fid' => 'nullable|string|exists:karyawans,fid',
             'transcript' => 'nullable|string',
         ]);
 
-        $briefing->update([
-            'transcript' => $validated['transcript'] ?? null,
-        ]);
+        $data = [];
 
-        return back()->with('success', 'Transkrip briefing berhasil diperbarui!');
+        if ($request->has('judul_briefing')) {
+            $data['judul_briefing'] = $validated['judul_briefing'];
+        }
+
+        if ($request->has('pemateri_fid')) {
+            $data['pemateri_fid'] = $validated['pemateri_fid'];
+            if ($validated['pemateri_fid']) {
+                $karyawan = Karyawan::find($validated['pemateri_fid']);
+                $data['divisi_pemateri'] = $karyawan?->divisi;
+            } else {
+                $data['divisi_pemateri'] = null;
+            }
+        }
+
+        if ($request->has('transcript')) {
+            $data['transcript'] = $validated['transcript'];
+        }
+
+        $briefing->update($data);
+
+        return back()->with('success', 'Briefing berhasil diperbarui!');
     }
 
     public function uploadRecording(Request $request, $id)
     {
         $briefing = Briefing::findOrFail($id);
 
-        if ($briefing->user_id !== Auth::id() && Auth::user()->role !== 'superadmin') {
+        $isCreator = $briefing->user_id === Auth::id();
+        $isPresenter = $briefing->pemateri_fid && Auth::user()->fid === $briefing->pemateri_fid;
+        if (!$isCreator && !$isPresenter && !Auth::user()->isSuperAdmin()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk mengunggah rekaman briefing ini.');
         }
 
@@ -228,7 +247,9 @@ class BriefingController extends Controller
     {
         $briefing = Briefing::findOrFail($id);
 
-        if ($briefing->user_id !== Auth::id() && Auth::user()->role !== 'superadmin') {
+        $isCreator = $briefing->user_id === Auth::id();
+        $isPresenter = $briefing->pemateri_fid && Auth::user()->fid === $briefing->pemateri_fid;
+        if (!$isCreator && !$isPresenter && !Auth::user()->isSuperAdmin()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk menghapus rekaman briefing ini.');
         }
 
@@ -254,7 +275,9 @@ class BriefingController extends Controller
     {
         $briefing = Briefing::findOrFail($id);
 
-        if ($briefing->user_id !== Auth::id() && Auth::user()->role !== 'superadmin') {
+        $isCreator = $briefing->user_id === Auth::id();
+        $isPresenter = $briefing->pemateri_fid && Auth::user()->fid === $briefing->pemateri_fid;
+        if (!$isCreator && !$isPresenter && !Auth::user()->isSuperAdmin()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk mengubah status absensi briefing ini.');
         }
 
@@ -274,7 +297,9 @@ class BriefingController extends Controller
     {
         $briefing = Briefing::findOrFail($id);
 
-        if ($briefing->user_id !== Auth::id() && Auth::user()->role !== 'superadmin') {
+        $isCreator = $briefing->user_id === Auth::id();
+        $isPresenter = $briefing->pemateri_fid && Auth::user()->fid === $briefing->pemateri_fid;
+        if (!$isCreator && !$isPresenter && !Auth::user()->isSuperAdmin()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk mengakhiri briefing ini.');
         }
 
@@ -291,7 +316,7 @@ class BriefingController extends Controller
         $briefing->status = 'Selesai';
         $briefing->absensi_dibuka = false;
 
-        if (Auth::user()->role === 'superadmin') {
+        if (Auth::user()->isSuperAdmin()) {
             $briefing->approved_by = Auth::id();
             $briefing->approved_at = now();
         }
@@ -305,12 +330,15 @@ class BriefingController extends Controller
     {
         $briefing = Briefing::with([
             'user.karyawan.signature',
+            'pemateri',
             'absensi' => function ($query) {
                 $query->with('karyawan.signature')->orderBy('jam_absen', 'asc');
             }
         ])->findOrFail($id);
 
-        if ($briefing->user_id !== Auth::id() && Auth::user()->role !== 'superadmin' && $briefing->status !== 'Selesai') {
+        $isCreator = $briefing->user_id === Auth::id();
+        $isPresenter = $briefing->pemateri_fid && Auth::user()->fid === $briefing->pemateri_fid;
+        if (!$isCreator && !$isPresenter && !Auth::user()->isSuperAdmin() && $briefing->status !== 'Selesai') {
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki otoritas untuk mencetak briefing ini.');
         }
 
@@ -323,7 +351,9 @@ class BriefingController extends Controller
     {
         $briefing = Briefing::findOrFail($briefingId);
 
-        if ($briefing->user_id !== Auth::id() && Auth::user()->role !== 'superadmin') {
+        $isCreator = $briefing->user_id === Auth::id();
+        $isPresenter = $briefing->pemateri_fid && Auth::user()->fid === $briefing->pemateri_fid;
+        if (!$isCreator && !$isPresenter && !Auth::user()->isSuperAdmin()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk menghapus data absensi ini.');
         }
 
@@ -342,12 +372,15 @@ class BriefingController extends Controller
         $user = Auth::user();
 
         $query = Briefing::withCount('absensi')
-            ->with('user')
+            ->with(['user', 'pemateri'])
             ->where('status', 'Selesai')
             ->orderBy('tanggal_jam', 'desc');
 
-        if ($user->role !== 'superadmin') {
-            $query->where('user_id', $user->id);
+        if (!$user->isSuperAdmin()) {
+            $query->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                  ->orWhereHas('pemateri', fn($q) => $q->where('fid', $user->fid));
+            });
         }
 
         $briefings = $query->get();

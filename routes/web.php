@@ -151,6 +151,12 @@ Route::middleware(['auth', 'applications.access'])->group(function () {
     Route::get('/briefings/{id}/print', [BriefingController::class, 'print'])->name('briefings.print');
     Route::delete('/briefings/{briefingId}/absensi/{absenId}', [BriefingController::class, 'destroyAbsen'])->name('briefings.absensi.destroy');
     Route::get('/briefing-history', [BriefingController::class, 'history'])->name('briefings.history');
+
+    Route::get('/api/karyawans/presenters', function () {
+        return \App\Models\Karyawan::where('jabatan', '!=', 'KARYAWAN')
+            ->where('status', 'Active')
+            ->get(['fid', 'nama_karyawan', 'divisi', 'jabatan']);
+    })->name('api.karyawans.presenters');
 });
 
 // API Notifikasi

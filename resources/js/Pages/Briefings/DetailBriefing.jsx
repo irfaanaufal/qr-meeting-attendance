@@ -1,17 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, usePage } from '@inertiajs/react';
+import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from '@headlessui/react';
+import axios from 'axios';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbsenUrl, flash }) {
     const { auth, storage_url, app_url } = usePage().props;
     const currentUser = auth.user;
-    const canManage = currentUser.role === 'superadmin' || briefing.user_id === currentUser.id;
+    const canManage = currentUser.role === 'superadmin' || briefing.user_id === currentUser.id || briefing.pemateri_fid === currentUser.fid;
 
     const [searchQuery, setSearchQuery] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const [transcriptText, setTranscriptText] = useState(briefing.transcript || '');
-    const [isEditingTranscript, setIsEditingTranscript] = useState(false);
+    const [isEditingTranscript, setIsEditingTranscript] = useState(!briefing.transcript);
     const [isSavingTranscript, setIsSavingTranscript] = useState(false);
+
+    const [judulBriefing, setJudulBriefing] = useState(briefing.judul_briefing || '');
+    const [presenters, setPresenters] = useState([]);
+    const [selectedPemateriFid, setSelectedPemateriFid] = useState(briefing.pemateri_fid || '');
+    const [pemateriDivisi, setPemateriDivisi] = useState(briefing.divisi_pemateri || '');
+    const [pemateriSearchQuery, setPemateriSearchQuery] = useState('');
+    const [isSavingField, setIsSavingField] = useState(false);
+
+    const filteredPresenters = presenters.filter(p => {
+        const query = pemateriSearchQuery.toLowerCase();
+        return (
+            (p.nama_karyawan || '').toLowerCase().includes(query) ||
+            (p.divisi || '').toLowerCase().includes(query) ||
+            (p.jabatan || '').toLowerCase().includes(query)
+        );
+    });
+
+    useEffect(() => {
+        axios.get(route('api.karyawans.presenters'))
+            .then(res => setPresenters(res.data))
+            .catch(() => { });
+    }, []);
+
+    const handleSaveJudul = () => {
+        setIsSavingField(true);
+        router.patch(route('briefings.update', briefing.id), {
+            judul_briefing: judulBriefing,
+        }, {
+            preserveScroll: true,
+            onFinish: () => setIsSavingField(false),
+        });
+    };
+
+    const handlePemateriChange = (fid) => {
+        setSelectedPemateriFid(fid);
+        const selected = presenters.find(p => p.fid === fid);
+        setPemateriDivisi(selected?.divisi || '');
+
+        setIsSavingField(true);
+        router.patch(route('briefings.update', briefing.id), {
+            pemateri_fid: fid || null,
+        }, {
+            preserveScroll: true,
+            onFinish: () => setIsSavingField(false),
+        });
+    };
 
     const publicAbsenUrl = propPublicAbsenUrl || route('absen.briefing.show', briefing.id);
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(publicAbsenUrl)}`;
@@ -163,9 +213,28 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
                                                 )}
                                                 {isDraft ? (briefing.absensi_dibuka ? 'Draft - Absensi Dibuka' : 'Draft - Absensi Ditutup') : 'Selesai (Read-Only)'}
                                             </span>
-                                            <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight leading-tight">
-                                                {briefing.judul_briefing}
-                                            </h1>
+                                            {canManage && isDraft ? (
+                                                <div className="flex items-center gap-2">
+                                                    <input
+                                                        type="text"
+                                                        value={judulBriefing}
+                                                        onChange={(e) => setJudulBriefing(e.target.value)}
+                                                        onBlur={handleSaveJudul}
+                                                        placeholder="Masukkan judul briefing..."
+                                                        className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight leading-tight bg-transparent border-b-2 border-dashed border-zinc-300 dark:border-zinc-700 focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none focus:border-solid w-full"
+                                                    />
+                                                    {isSavingField && (
+                                                        <svg className="animate-spin h-5 w-5 text-zinc-400 shrink-0" fill="none" viewBox="0 0 24 24">
+                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                                        </svg>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight leading-tight">
+                                                    {briefing.judul_briefing || '(Belum diisi)'}
+                                                </h1>
+                                            )}
                                         </div>
 
                                         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
@@ -217,12 +286,57 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
                                     <div className="mt-6 pt-6 border-t border-zinc-100 dark:border-zinc-800 grid grid-cols-1 sm:grid-cols-2 gap-5 text-sm">
                                         <div className="space-y-1">
                                             <p className="text-[11px] font-extrabold text-zinc-400 dark:text-zinc-550 uppercase tracking-[0.15em]">Pemateri / Host</p>
-                                            <p className="font-semibold text-zinc-900 dark:text-zinc-100">{briefing.user?.name}</p>
-                                            <p className="text-xs text-zinc-400 dark:text-zinc-500">{briefing.user?.email}</p>
+                                            {canManage && isDraft ? (
+                                                <div className="flex items-center gap-2">
+                                                <Combobox
+                                                    value={selectedPemateriFid || null}
+                                                    onChange={(val) => { handlePemateriChange(val || ''); setPemateriSearchQuery(''); }}
+                                                    nullable
+                                                >
+                                                    <div className="relative w-full">
+                                                        <ComboboxInput
+                                                            className="w-full rounded-xl border border-zinc-300 bg-white text-zinc-900 px-3 py-2 text-sm shadow-sm focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 transition-all"
+                                                            displayValue={(fid) => presenters.find(p => p.fid === fid)?.nama_karyawan || ''}
+                                                            onChange={(e) => setPemateriSearchQuery(e.target.value)}
+                                                            placeholder="Cari pemateri..."
+                                                        />
+                                                        <ComboboxOptions className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white border border-zinc-200 shadow-lg dark:bg-zinc-800 dark:border-zinc-700 focus:outline-none">
+                                                            {filteredPresenters.length === 0 ? (
+                                                                <div className="px-3 py-2 text-sm text-zinc-400 dark:text-zinc-500">Tidak ditemukan</div>
+                                                            ) : (
+                                                                filteredPresenters.map(p => (
+                                                                    <ComboboxOption
+                                                                        key={p.fid}
+                                                                        value={p.fid}
+                                                                        className="cursor-pointer px-3 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-700 data-[selected]:bg-zinc-100 dark:data-[selected]:bg-zinc-700 data-[focus]:bg-zinc-100 dark:data-[focus]:bg-zinc-700 transition-colors"
+                                                                    >
+                                                                        <div className="font-semibold text-zinc-900 dark:text-zinc-100">{p.nama_karyawan}</div>
+                                                                        <div className="text-xs text-zinc-400 dark:text-zinc-500">{p.divisi} &bull; {p.jabatan}</div>
+                                                                    </ComboboxOption>
+                                                                ))
+                                                            )}
+                                                        </ComboboxOptions>
+                                                    </div>
+                                                </Combobox>
+                                                    {isSavingField && (
+                                                        <svg className="animate-spin h-4 w-4 text-zinc-400 shrink-0" fill="none" viewBox="0 0 24 24">
+                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                                        </svg>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <p className="font-semibold text-zinc-900 dark:text-zinc-100">
+                                                    {briefing.pemateri?.nama_karyawan || briefing.user?.name || '-'}
+                                                </p>
+                                            )}
+                                            {!canManage || !isDraft ? (
+                                                <p className="text-xs text-zinc-400 dark:text-zinc-500">{briefing.pemateri ? '' : (briefing.user?.email || '')}</p>
+                                            ) : null}
                                         </div>
                                         <div className="space-y-1">
                                             <p className="text-[11px] font-extrabold text-zinc-400 dark:text-zinc-550 uppercase tracking-[0.15em]">Divisi Pemateri</p>
-                                            <p className="font-semibold text-zinc-900 dark:text-zinc-100">{briefing.divisi_pemateri || 'Umum'}</p>
+                                            <p className="font-semibold text-zinc-900 dark:text-zinc-100">{pemateriDivisi || '-'}</p>
                                         </div>
                                         <div className="space-y-1">
                                             <p className="text-[11px] font-extrabold text-zinc-400 dark:text-zinc-550 uppercase tracking-[0.15em]">Tanggal & Waktu Mulai</p>
@@ -287,7 +401,7 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
                                                         <svg className="w-5 h-5 text-zinc-400 animate-pulse" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                                                         </svg>
-                                                        Upload Rekaman (MP3, WAV, M4A, AAC, FLAC, OGG, MP4, WebM, AMR, Opus)
+                                                        Upload Rekaman (MP3, MPEG, AAC)
                                                         <input
                                                             type="file"
                                                             className="hidden"
@@ -303,15 +417,22 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
 
                                         <div className="sm:col-span-2 space-y-2">
                                             <p className="text-[11px] font-extrabold text-zinc-400 dark:text-zinc-550 uppercase tracking-[0.15em]">Isi Briefing</p>
-                                            {canManage && isDraft && briefing.transcript ? (
+                                            {canManage && isDraft ? (
                                                 <div>
                                                     {isEditingTranscript ? (
                                                         <div className="space-y-2">
-                                                            <textarea
+                                                            <ReactQuill
                                                                 value={transcriptText}
-                                                                onChange={(e) => setTranscriptText(e.target.value)}
-                                                                className="w-full rounded-xl border border-zinc-300 bg-white text-zinc-900 px-4 py-3 text-sm shadow-sm focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 focus:outline-none dark:bg-zinc-950 dark:border-zinc-700 dark:text-white"
-                                                                rows={8}
+                                                                onChange={setTranscriptText}
+                                                                theme="snow"
+                                                                modules={{
+                                                                    toolbar: [
+                                                                        ['bold', 'italic', 'underline'],
+                                                                        [{ list: 'ordered' }, { list: 'bullet' }],
+                                                                        ['clean'],
+                                                                    ],
+                                                                }}
+                                                                className="bg-white dark:bg-zinc-950 rounded-xl text-sm dark:text-white"
                                                             />
                                                             <div className="flex items-center gap-2">
                                                                 <button
@@ -322,7 +443,7 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
                                                                     {isSavingTranscript ? 'Menyimpan...' : 'Simpan'}
                                                                 </button>
                                                                 <button
-                                                                    onClick={() => { setTranscriptText(briefing.transcript); setIsEditingTranscript(false); }}
+                                                                    onClick={() => { setTranscriptText(briefing.transcript || ''); setIsEditingTranscript(false); }}
                                                                     className="inline-flex items-center gap-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-[11px] font-bold uppercase tracking-wider px-4 py-2.5 transition border border-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 dark:border-zinc-700"
                                                                 >
                                                                     Batal
@@ -332,9 +453,9 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
                                                     ) : (
                                                         <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 dark:bg-zinc-950 dark:border-zinc-800">
                                                             <div className="flex justify-between items-start gap-2">
-                                                                <p className="whitespace-pre-wrap text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">{briefing.transcript}</p>
+                                                                <div className="prose prose-sm dark:prose-invert max-w-none text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: briefing.transcript || '' }} />
                                                                 <button
-                                                                    onClick={() => { setTranscriptText(briefing.transcript); setIsEditingTranscript(true); }}
+                                                                    onClick={() => { setTranscriptText(briefing.transcript || ''); setIsEditingTranscript(true); }}
                                                                     className="flex-shrink-0 p-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-500 transition dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-400"
                                                                     title="Edit Transkrip"
                                                                 >
@@ -348,7 +469,7 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
                                                 </div>
                                             ) : briefing.transcript ? (
                                                 <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 dark:bg-zinc-950 dark:border-zinc-800">
-                                                    <p className="whitespace-pre-wrap text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">{briefing.transcript}</p>
+                                                    <div className="prose prose-sm dark:prose-invert max-w-none text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: briefing.transcript }} />
                                                 </div>
                                             ) : (
                                                 <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 dark:bg-zinc-950 dark:border-zinc-800">
@@ -360,7 +481,7 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
                                                             Transkripsi gagal. Upload ulang rekaman untuk mencoba lagi.
                                                         </p>
                                                     ) : (
-                                                        <p className="text-xs text-zinc-400 italic">Upload rekaman untuk menghasilkan transkrip otomatis.</p>
+                                                        <p className="text-xs text-zinc-400 italic">Belum ada isi briefing.</p>
                                                     )}
                                                 </div>
                                             )}

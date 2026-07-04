@@ -43,43 +43,25 @@ export default function Navbar({ user }) {
                     
                     <div className="hidden sm:block h-5 w-px bg-zinc-200 dark:bg-zinc-800"></div>
 
-                    <div className="hidden sm:flex items-center gap-1">
+                    <div className="hidden sm:flex items-center gap-4">
                         <NavLink href={route('dashboard')} active={route().current('dashboard')}>
-                            <svg className={`w-4 h-4 mr-0.5 ${route().current('dashboard') ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-zinc-500'}`} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
-                            </svg>
                             Dashboard
                         </NavLink>
                         <NavLink href={route('meetings.index')} active={(route().current('meetings.index') || route().current('meetings.show')) && !isEndedDetail}>
-                            <svg className={`w-4 h-4 mr-0.5 ${(route().current('meetings.index') || route().current('meetings.show')) && !isEndedDetail ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-zinc-500'}`} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-                            </svg>
                             Rapat
                         </NavLink>
                         <NavLink href={route('meetings.history')} active={route().current('meetings.history') || isEndedDetail}>
-                            <svg className={`w-4 h-4 mr-0.5 ${route().current('meetings.history') || isEndedDetail ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-zinc-500'}`} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
                             Riwayat
                         </NavLink>
                         <NavLink href={route('briefings.index')} active={route().current('briefings.index') || route().current('briefings.show')}>
-                            <svg className={`w-4 h-4 mr-0.5 ${route().current('briefings.index') || route().current('briefings.show') ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-zinc-500'}`} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
-                            </svg>
                             Briefing
                         </NavLink>
                         <NavLink href={route('briefings.history')} active={route().current('briefings.history')}>
-                            <svg className={`w-4 h-4 mr-0.5 ${route().current('briefings.history') ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-zinc-500'}`} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                            </svg>
                             Riwayat Briefing
                         </NavLink>
 
                         {user.role === 'superadmin' && (
                             <NavLink href={route('karyawan.index')} active={route().current('karyawan.index')}>
-                                <svg className={`w-4 h-4 mr-0.5 ${route().current('karyawan.index') ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-zinc-500'}`} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.386 11.386 0 0110.089 20c-2.202 0-4.277-.61-6.059-1.673a8.967 8.967 0 01-1.685-1.353 3.5 3.5 0 014.78-4.42 10.78 10.78 0 0112.445 1.572M16.25 5.5a3.25 3.25 0 11-6.5 0 3.25 3.25 0 016.5 0zm-8 8a2.75 2.75 0 11-5.5 0 2.75 2.75 0 015.5 0z" />
-                                </svg>
                                 Karyawan
                             </NavLink>
                         )}

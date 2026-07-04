@@ -12,7 +12,7 @@ export default function BriefingsIndex({ briefings }) {
     const filtered = briefings.filter(b => {
         const term = searchQuery.toLowerCase();
         return (
-            b.judul_briefing.toLowerCase().includes(term) ||
+            (b.judul_briefing || '').toLowerCase().includes(term) ||
             (b.divisi_pemateri || '').toLowerCase().includes(term) ||
             (b.user?.name || '').toLowerCase().includes(term)
         );

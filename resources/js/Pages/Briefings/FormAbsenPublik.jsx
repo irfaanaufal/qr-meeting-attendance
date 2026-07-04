@@ -110,7 +110,7 @@ export default function FormAbsenPublik({ briefing, flash }) {
                         <div className={`mt-2 flex items-center justify-center gap-4 text-xs font-medium ${
                             isDark ? 'text-zinc-400' : 'text-zinc-500'
                         }`}>
-                            <span>{briefing.user?.name}</span>
+                            <span>{briefing.pemateri?.nama_karyawan || briefing.user?.name}</span>
                             <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-600" />
                             <span>{briefing.divisi_pemateri || 'Umum'}</span>
                         </div>

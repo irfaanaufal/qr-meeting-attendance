@@ -53,7 +53,7 @@ export default function BriefingsList({ briefings, filtered, searchQuery, setSea
                     <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1 font-medium">
                         {searchQuery
                             ? 'Coba kata kunci lain atau hapus filter.'
-                            : 'Gunakan form di sebelah kiri untuk membuat briefing pertama.'}
+                            : 'Klik tombol "+ Buat Briefing" untuk memulai.'}
                     </p>
                 </div>
             ) : (
@@ -83,7 +83,7 @@ export default function BriefingsList({ briefings, filtered, searchQuery, setSea
                                             {briefing.status === 'Draft' ? 'Draft' : 'Selesai'}
                                         </span>
                                         <span className="text-[9px] font-extrabold text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.18em]">
-                                            {briefing.divisi_pemateri}
+                                            {briefing.divisi_pemateri || '-'}
                                         </span>
                                         {briefing.recording_file && (
                                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-zinc-100 text-zinc-500 text-[8px] font-bold uppercase tracking-wider dark:bg-zinc-800 dark:text-zinc-400">
@@ -98,7 +98,7 @@ export default function BriefingsList({ briefings, filtered, searchQuery, setSea
                                         href={route('briefings.show', briefing.id)}
                                         className="block font-extrabold text-zinc-900 dark:text-white hover:text-zinc-600 dark:hover:text-zinc-300 transition tracking-tight text-sm truncate"
                                     >
-                                        {briefing.judul_briefing}
+                                        {briefing.judul_briefing || '(Belum diisi)'}
                                     </Link>
                                     <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium">
                                         {formatDate(briefing.tanggal_jam)}

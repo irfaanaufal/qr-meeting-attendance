@@ -55,7 +55,7 @@ export default function Print({ meeting }) {
     const attendees = meeting.absensi || [];
     const baseUrl = window.location.origin;
     const ringkasanText = meeting.ringkasan || '';
-    const textLines = ringkasanText ? ringkasanText.split('\n').filter(line => line.trim()) : [];
+    const hasRingkasan = ringkasanText && ringkasanText.replace(/<[^>]*>/g, '').trim();
 
     return (
         <div className="print-wrapper">
@@ -144,14 +144,10 @@ export default function Print({ meeting }) {
                 </table>
 
                 {/* Notulensi */}
-                {textLines.length > 0 && (
+                {hasRingkasan && (
                     <div className="section avoid-break">
                         <h3 className="section-title">NOTULENSI</h3>
-                        <div className="transcript-content">
-                            {textLines.map((line, i) => (
-                                <p key={i} className="transcript-paragraph">{line}</p>
-                            ))}
-                        </div>
+                        <div className="transcript-content" dangerouslySetInnerHTML={{ __html: ringkasanText }} />
                     </div>
                 )}
 
@@ -317,10 +313,20 @@ export default function Print({ meeting }) {
                     .transcript-content {
                         padding: 0 2px;
                     }
-                    .transcript-paragraph {
+                    .transcript-content p {
                         text-indent: 30px;
                         text-align: justify;
                         margin: 0 0 6px 0;
+                        font-size: 12pt;
+                        line-height: 1.7;
+                    }
+                    .transcript-content ul, .transcript-content ol {
+                        margin: 6px 0 6px 30px;
+                        padding-left: 20px;
+                    }
+                    .transcript-content li {
+                        text-align: justify;
+                        margin: 0 0 4px 0;
                         font-size: 12pt;
                         line-height: 1.7;
                     }
