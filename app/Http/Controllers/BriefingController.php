@@ -16,16 +16,10 @@ class BriefingController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
-
         $query = Briefing::withCount('absensi')
             ->with(['user', 'pemateri'])
             ->where('status', 'Draft')
             ->orderBy('created_at', 'desc');
-
-        if (!$user->isSuperAdmin()) {
-            $query->where('user_id', $user->id);
-        }
 
         $briefings = $query->get();
 
@@ -59,7 +53,7 @@ class BriefingController extends Controller
 
         $isCreator = $briefing->user_id === Auth::id();
         $isPresenter = $briefing->pemateri_fid && Auth::user()->fid === $briefing->pemateri_fid;
-        if (!$isCreator && !$isPresenter && !Auth::user()->isSuperAdmin() && $briefing->status !== 'Selesai') {
+        if (!$isCreator && !$isPresenter && $briefing->status !== 'Selesai') {
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki otoritas untuk melihat briefing ini.');
         }
 
@@ -153,7 +147,7 @@ class BriefingController extends Controller
 
         $isCreator = $briefing->user_id === Auth::id();
         $isPresenter = $briefing->pemateri_fid && Auth::user()->fid === $briefing->pemateri_fid;
-        if (!$isCreator && !$isPresenter && !Auth::user()->isSuperAdmin()) {
+        if (!$isCreator && !$isPresenter) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk memperbarui briefing ini.');
         }
 
@@ -198,7 +192,7 @@ class BriefingController extends Controller
 
         $isCreator = $briefing->user_id === Auth::id();
         $isPresenter = $briefing->pemateri_fid && Auth::user()->fid === $briefing->pemateri_fid;
-        if (!$isCreator && !$isPresenter && !Auth::user()->isSuperAdmin()) {
+        if (!$isCreator && !$isPresenter) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk mengunggah rekaman briefing ini.');
         }
 
@@ -249,7 +243,7 @@ class BriefingController extends Controller
 
         $isCreator = $briefing->user_id === Auth::id();
         $isPresenter = $briefing->pemateri_fid && Auth::user()->fid === $briefing->pemateri_fid;
-        if (!$isCreator && !$isPresenter && !Auth::user()->isSuperAdmin()) {
+        if (!$isCreator && !$isPresenter) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk menghapus rekaman briefing ini.');
         }
 
@@ -277,7 +271,7 @@ class BriefingController extends Controller
 
         $isCreator = $briefing->user_id === Auth::id();
         $isPresenter = $briefing->pemateri_fid && Auth::user()->fid === $briefing->pemateri_fid;
-        if (!$isCreator && !$isPresenter && !Auth::user()->isSuperAdmin()) {
+        if (!$isCreator && !$isPresenter) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk mengubah status absensi briefing ini.');
         }
 
@@ -299,7 +293,7 @@ class BriefingController extends Controller
 
         $isCreator = $briefing->user_id === Auth::id();
         $isPresenter = $briefing->pemateri_fid && Auth::user()->fid === $briefing->pemateri_fid;
-        if (!$isCreator && !$isPresenter && !Auth::user()->isSuperAdmin()) {
+        if (!$isCreator && !$isPresenter) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk mengakhiri briefing ini.');
         }
 
@@ -315,11 +309,8 @@ class BriefingController extends Controller
         $briefing->recording_original_name = null;
         $briefing->status = 'Selesai';
         $briefing->absensi_dibuka = false;
-
-        if (Auth::user()->isSuperAdmin()) {
-            $briefing->approved_by = Auth::id();
-            $briefing->approved_at = now();
-        }
+        $briefing->approved_by = Auth::id();
+        $briefing->approved_at = now();
 
         $briefing->save();
 
@@ -338,7 +329,7 @@ class BriefingController extends Controller
 
         $isCreator = $briefing->user_id === Auth::id();
         $isPresenter = $briefing->pemateri_fid && Auth::user()->fid === $briefing->pemateri_fid;
-        if (!$isCreator && !$isPresenter && !Auth::user()->isSuperAdmin() && $briefing->status !== 'Selesai') {
+        if (!$isCreator && !$isPresenter && $briefing->status !== 'Selesai') {
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki otoritas untuk mencetak briefing ini.');
         }
 
@@ -353,7 +344,7 @@ class BriefingController extends Controller
 
         $isCreator = $briefing->user_id === Auth::id();
         $isPresenter = $briefing->pemateri_fid && Auth::user()->fid === $briefing->pemateri_fid;
-        if (!$isCreator && !$isPresenter && !Auth::user()->isSuperAdmin()) {
+        if (!$isCreator && !$isPresenter) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk menghapus data absensi ini.');
         }
 
@@ -369,19 +360,10 @@ class BriefingController extends Controller
 
     public function history()
     {
-        $user = Auth::user();
-
         $query = Briefing::withCount('absensi')
             ->with(['user', 'pemateri'])
             ->where('status', 'Selesai')
             ->orderBy('tanggal_jam', 'desc');
-
-        if (!$user->isSuperAdmin()) {
-            $query->where(function ($q) use ($user) {
-                $q->where('user_id', $user->id)
-                  ->orWhereHas('pemateri', fn($q) => $q->where('fid', $user->fid));
-            });
-        }
 
         $briefings = $query->get();
 

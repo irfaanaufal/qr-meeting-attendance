@@ -5,10 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Karyawan;
-use App\Models\Role;
 use App\Models\Application;
 use App\Models\UserApplication;
-use App\Models\LogNotifikasi;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -46,30 +44,24 @@ class RegisteredUserController extends Controller
 
         $fid = $request->fid;
         if (!$fid) {
-            // Attempt to match with karyawan list to auto-assign division
             $karyawan = Karyawan::where('nama_karyawan', 'like', trim($request->name))->first();
             if ($karyawan && !User::where('fid', $karyawan->fid)->exists()) {
                 $fid = $karyawan->fid;
             }
         }
 
-        $userRole = Role::where('name', 'user')->first();
-
         $user = User::create([
             'name' => $request->name,
             'username' => $request->username,
             'email' => $request->email,
             'fid' => $fid,
-            'role_id' => $userRole?->id,
             'password' => Hash::make($request->password),
         ]);
 
-        // Automatically verify email and generate remember_token on registration
         $user->email_verified_at = now();
         $user->remember_token = \Illuminate\Support\Str::random(10);
         $user->save();
 
-        // Automatically request access to 'absensi-meeting' and notify admins
         $app = Application::find(config('app.application_id'));
 
         if ($app) {
@@ -78,9 +70,12 @@ class RegisteredUserController extends Controller
                 ['is_active' => false]
             );
 
-            $adminUsers = User::whereHas('roleRelation', fn($q) => $q->whereIn('name', ['superadmin', 'admin']))->get();
+            $adminUsers = User::whereHas('userApplications', function ($q) use ($app) {
+                $q->where('application_id', $app->id)->where('is_active', true);
+            })->get();
+
             $adminUsers->each(function ($admin) use ($user, $app) {
-                LogNotifikasi::create([
+                \App\Models\LogNotifikasi::create([
                     'user_id' => $admin->id,
                     'ticket_id' => null,
                     'actor_user_id' => $user->id,

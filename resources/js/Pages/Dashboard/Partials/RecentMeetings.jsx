@@ -50,9 +50,9 @@ export default function RecentMeetings({ recentMeetings, user }) {
                                     >
                                         {meeting.judul_rapat}
                                     </Link>
-                                    <p className="text-xs text-zinc-400 font-medium mt-0.5">
+                                     <p className="text-xs text-zinc-400 font-medium mt-0.5">
                                         {formatDate(meeting.tanggal_jam)}
-                                        {user.role === 'superadmin' && meeting.user && (
+                                        {meeting.user && (
                                             <> &bull; <span className="text-zinc-500 dark:text-zinc-400 font-semibold">{meeting.user.name}</span></>
                                         )}
                                     </p>

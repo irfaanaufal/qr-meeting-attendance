@@ -31,51 +31,50 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
-        if (!$user->isAdmin()) {
-            $app = Application::firstOrCreate(
-                ['slug' => 'absensi-meeting'],
-                ['name' => 'Absensi Meeting', 'description' => 'Aplikasi Absensi Meeting Digital']
-            );
+        $app = Application::firstOrCreate(
+            ['slug' => 'absensi-meeting'],
+            ['name' => 'Absensi Meeting', 'description' => 'Aplikasi Absensi Meeting Digital']
+        );
 
-            $userApp = UserApplication::where('user_id', $user->id)
-                ->where('application_id', $app->id)
-                ->first();
+        $userApp = UserApplication::where('user_id', $user->id)
+            ->where('application_id', $app->id)
+            ->first();
 
-            if (!$userApp || !$userApp->is_active) {
-                // If the user has an account but has never requested access to this app,
-                // automatically create the pending request and notify the IT admins
-                if (!$userApp) {
-                    UserApplication::create([
-                        'user_id' => $user->id,
-                        'application_id' => $app->id,
-                        'is_active' => false,
-                    ]);
-
-                    $adminUsers = User::whereHas('roleRelation', fn($q) => $q->whereIn('name', ['superadmin', 'admin']))->get();
-                    $adminUsers->each(function ($admin) use ($user, $app) {
-                        LogNotifikasi::create([
-                            'user_id' => $admin->id,
-                            'ticket_id' => null,
-                            'actor_user_id' => $user->id,
-                            'actor_name' => $user->name,
-                            'recipient_type' => 'admin',
-                            'action' => 'new_access_request',
-                            'title' => 'Permintaan akses baru',
-                            'message' => $user->name . ' mengajukan akses ke "' . $app->name . '".',
-                            'status' => null,
-                            'visible_in_bell' => true,
-                        ]);
-                    });
-                }
-
-                Auth::guard('web')->logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-
-                return redirect()->route('login')->withErrors([
-                    'activation_needed' => 'Akun Anda belum diaktifkan. Silakan hubungi tim IT.',
+        if (!$userApp || !$userApp->is_active) {
+            if (!$userApp) {
+                UserApplication::create([
+                    'user_id' => $user->id,
+                    'application_id' => $app->id,
+                    'is_active' => false,
                 ]);
+
+                $adminUsers = User::whereHas('userApplications', function ($q) use ($app) {
+                    $q->where('application_id', $app->id)->where('is_active', true);
+                })->get();
+
+                $adminUsers->each(function ($admin) use ($user, $app) {
+                    LogNotifikasi::create([
+                        'user_id' => $admin->id,
+                        'ticket_id' => null,
+                        'actor_user_id' => $user->id,
+                        'actor_name' => $user->name,
+                        'recipient_type' => 'admin',
+                        'action' => 'new_access_request',
+                        'title' => 'Permintaan akses baru',
+                        'message' => $user->name . ' mengajukan akses ke "' . $app->name . '".',
+                        'status' => null,
+                        'visible_in_bell' => true,
+                    ]);
+                });
             }
+
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')->withErrors([
+                'activation_needed' => 'Akun Anda belum diaktifkan. Silakan hubungi tim IT.',
+            ]);
         }
 
         $request->session()->regenerate();

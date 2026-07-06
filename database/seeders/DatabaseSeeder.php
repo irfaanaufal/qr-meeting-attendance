@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use App\Models\Role;
 use App\Models\Karyawan;
 use App\Models\Application;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -19,10 +18,6 @@ class DatabaseSeeder extends Seeder
             KaryawanSeeder::class,
         ]);
 
-        $superadminRole = Role::firstOrCreate(['name' => 'superadmin']);
-        Role::firstOrCreate(['name' => 'admin']);
-        Role::firstOrCreate(['name' => 'user']);
-
         Karyawan::firstOrCreate(
             ['fid' => '309'],
             ['nama_karyawan' => 'Irfaanaufal', 'divisi' => 'IT', 'jabatan' => 'Staff', 'status' => 'Active']
@@ -37,7 +32,6 @@ class DatabaseSeeder extends Seeder
             'name' => 'Irfaanaufal',
             'username' => 'irfaanaufal',
             'email' => 'irfaanaufal04@gmail.com',
-            'role_id' => $superadminRole->id,
             'password' => bcrypt('password'),
         ]);
 
@@ -46,7 +40,6 @@ class DatabaseSeeder extends Seeder
             'name' => 'Hendi',
             'username' => 'Hendi',
             'email' => 'hendi@gmail.com',
-            'role_id' => $superadminRole->id,
             'password' => bcrypt('password'),
         ]);
 

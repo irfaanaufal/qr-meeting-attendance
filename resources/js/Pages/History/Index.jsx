@@ -206,15 +206,13 @@ export default function HistoryIndex({ meetings }) {
                                                     </td>
 
                                                     {/* Penyelenggara / Host */}
-                                                    <td className="whitespace-nowrap px-5 py-4 text-sm">
+                                                     <td className="whitespace-nowrap px-5 py-4 text-sm">
                                                         <div className="font-semibold text-zinc-900 dark:text-zinc-100">
                                                             {meeting.user?.name || 'Unknown User'}
                                                         </div>
-                                                        {user.role === 'superadmin' && (
-                                                            <div className="text-[10px] text-zinc-450 dark:text-zinc-500 font-medium">
-                                                                ID Host: {meeting.user_id}
-                                                            </div>
-                                                        )}
+                                                        <div className="text-[10px] text-zinc-450 dark:text-zinc-500 font-medium">
+                                                            ID Host: {meeting.user_id}
+                                                        </div>
                                                     </td>
 
                                                     {/* Waktu Pelaksanaan */}

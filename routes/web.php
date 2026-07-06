@@ -4,7 +4,6 @@ use App\Http\Controllers\LogNotifikasiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\BriefingController;
-use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\SignatureController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -16,40 +15,27 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified', 'applications.access'])->group(function () {
     Route::get('/dashboard', function () {
-        $user = \Illuminate\Support\Facades\Auth::user();
-
         $query = \App\Models\Meeting::withCount('absensi')
             ->with(['user', 'absensi.karyawan'])
             ->orderBy('created_at', 'desc');
 
-        if ($user->role !== 'superadmin') {
-            $query->where(function ($q) use ($user) {
-                $q->where('user_id', $user->id)
-                  ->orWhere('status', 'Ended');
-            });
-        }
-
         $meetings = $query->get();
 
-        // Stats
         $totalMeetings  = $meetings->count();
         $activeMeetings = $meetings->where('status', 'On-Progress')->count();
         $closedMeetings = $meetings->where('status', 'Closed')->count();
         $totalAttendees = $meetings->sum('absensi_count');
 
-        // Pie chart: status distribution
         $statusData = [
             ['name' => 'Aktif',   'value' => $activeMeetings],
             ['name' => 'Ditutup', 'value' => $closedMeetings],
         ];
 
-        // Absensi per divisi karyawan (from all absensi records)
         $divisiData = $meetings->flatMap(fn($m) => $m->absensi)
             ->groupBy(fn($a) => $a->karyawan?->divisi ?? 'Umum')
             ->map(fn($group, $key) => ['name' => $key, 'value' => $group->count()])
             ->values();
 
-        // Rapat per hari (last 7 days)
         $last7 = collect();
         for ($i = 6; $i >= 0; $i--) {
             $date  = now()->subDays($i)->toDateString();
@@ -60,11 +46,7 @@ Route::middleware(['auth', 'verified', 'applications.access'])->group(function (
 
         $recentMeetings = $meetings->take(6)->values();
 
-        // Briefing stats
         $briefingQuery = \App\Models\Briefing::withCount('absensi');
-        if ($user->role !== 'superadmin') {
-            $briefingQuery->where('user_id', $user->id);
-        }
         $allBriefings = $briefingQuery->get();
         $totalBriefings = $allBriefings->count();
         $draftBriefings = $allBriefings->where('status', 'Draft')->count();
@@ -91,16 +73,10 @@ Route::middleware(['auth', 'verified', 'applications.access'])->group(function (
     })->name('dashboard');
 
     Route::get('/meetings', function () {
-        $user = \Illuminate\Support\Facades\Auth::user();
-
         $query = \App\Models\Meeting::withCount('absensi')
             ->with('user')
             ->where('status', '!=', 'Ended')
             ->orderBy('created_at', 'desc');
-
-        if ($user->role !== 'superadmin') {
-            $query->where('user_id', $user->id);
-        }
 
         $meetings = $query->get();
 
@@ -110,14 +86,12 @@ Route::middleware(['auth', 'verified', 'applications.access'])->group(function (
     })->name('meetings.index');
 });
 
-// Protected routes requiring authentication only (e.g. profile edit/update)
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Protected internal routes requiring both authentication and active application access
 Route::middleware(['auth', 'applications.access'])->group(function () {
     Route::post('/meetings', [MeetingController::class, 'store'])->name('meetings.store');
     Route::get('/meetings/{id}', [MeetingController::class, 'show'])->name('meetings.show');
@@ -130,16 +104,11 @@ Route::middleware(['auth', 'applications.access'])->group(function () {
     Route::get('/meetings/{id}/print', [MeetingController::class, 'print'])->name('meetings.print');
     Route::delete('/meetings/{meetingId}/absensi/{absenId}', [MeetingController::class, 'destroyAbsen'])->name('meetings.absensi.destroy');
     Route::get('/history', [MeetingController::class, 'history'])->name('meetings.history');
-    Route::get('/karyawan', [KaryawanController::class, 'index'])->name('karyawan.index');
-    Route::post('/karyawan', [KaryawanController::class, 'store'])->name('karyawan.store');
-    Route::patch('/karyawan/{fid}', [KaryawanController::class, 'update'])->name('karyawan.update');
 
-    // Signature routes
     Route::post('/signatures', [SignatureController::class, 'store'])->name('signatures.store');
     Route::get('/signatures/{karyawanFid}', [SignatureController::class, 'show'])->name('signatures.show');
     Route::delete('/signatures/{karyawanFid}', [SignatureController::class, 'destroy'])->name('signatures.destroy');
 
-    // Briefing routes
     Route::get('/briefings', [BriefingController::class, 'index'])->name('briefings.index');
     Route::post('/briefings', [BriefingController::class, 'store'])->name('briefings.store');
     Route::get('/briefings/{id}', [BriefingController::class, 'show'])->name('briefings.show');
@@ -159,13 +128,11 @@ Route::middleware(['auth', 'applications.access'])->group(function () {
     })->name('api.karyawans.presenters');
 });
 
-// API Notifikasi
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/api/notifications', [LogNotifikasiController::class, 'index'])->name('api.notifications');
     Route::patch('/api/notifications/read-all', [LogNotifikasiController::class, 'markAllRead'])->name('api.notifications.read-all');
 });
 
-// Public routes for employees checking in via QR Code / Mobile
 Route::get('/absen/meeting/{id}', [MeetingController::class, 'showAbsenForm'])->name('absen.meeting.show');
 Route::post('/absen/meeting/{id}', [MeetingController::class, 'submitAbsen'])->name('absen.meeting.submit');
 

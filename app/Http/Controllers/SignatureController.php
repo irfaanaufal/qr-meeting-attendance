@@ -20,7 +20,7 @@ class SignatureController extends Controller
         $user = Auth::user();
         $karyawan = Karyawan::findOrFail($request->karyawan_fid);
 
-        if ($user->role !== 'superadmin' && $user->fid !== $karyawan->fid) {
+        if ($user->fid !== $karyawan->fid) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk mengubah tanda tangan karyawan lain.');
         }
 
@@ -88,7 +88,7 @@ class SignatureController extends Controller
         $user = Auth::user();
         $karyawan = Karyawan::findOrFail($karyawanFid);
 
-        if ($user->role !== 'superadmin' && $user->fid !== $karyawan->fid) {
+        if ($user->fid !== $karyawan->fid) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk menghapus tanda tangan ini.');
         }
 

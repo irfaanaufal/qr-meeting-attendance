@@ -60,12 +60,6 @@ export default function Navbar({ user }) {
                             Riwayat Briefing
                         </NavLink>
 
-                        {user.role === 'superadmin' && (
-                            <NavLink href={route('karyawan.index')} active={route().current('karyawan.index')}>
-                                Karyawan
-                            </NavLink>
-                        )}
-
                     </div>
                 </div>
 
@@ -73,11 +67,6 @@ export default function Navbar({ user }) {
                 <div className="hidden sm:flex items-center gap-5">
                     {/* Dark Mode Pull Switcher */}
                     <LightPullThemeSwitcher theme={theme} toggleTheme={toggleTheme} />
-                    {user.role === 'superadmin' && (
-                        <span className="text-[9px] bg-zinc-900 text-white font-black uppercase py-1 px-2.5 rounded-full tracking-[0.2em] dark:bg-white dark:text-zinc-900">
-                            Super Admin
-                        </span>
-                    )}
                     <div className="relative">
                         <button
                             onClick={() => setShowingUserDropdown(!showingUserDropdown)}
@@ -172,15 +161,6 @@ export default function Navbar({ user }) {
                     >
                         Riwayat Briefing
                     </ResponsiveNavLink>
-
-                    {user.role === 'superadmin' && (
-                        <ResponsiveNavLink
-                            href={route('karyawan.index')}
-                            active={route().current('karyawan.index')}
-                        >
-                            Karyawan
-                        </ResponsiveNavLink>
-                    )}
 
                     {/* Mobile Toggle Mode */}
                     <button

@@ -5,7 +5,7 @@ import { Head, router, usePage } from '@inertiajs/react';
 export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsenUrl, flash }) {
     const { auth, storage_url, app_url } = usePage().props;
     const currentUser = auth.user;
-    const canManage = currentUser.role === 'superadmin' || meeting.user_id === currentUser.id;
+    const canManage = meeting.user_id === currentUser.id;
 
     const [searchQuery, setSearchQuery] = useState('');
     const [isToggling, setIsToggling] = useState(false);
@@ -319,7 +319,7 @@ export default function DetailMeeting({ meeting, publicAbsenUrl: propPublicAbsen
                                         <div className="sm:col-span-2 space-y-2">
                                             <div className="flex items-center justify-between">
                                                 <p className="text-[11px] font-extrabold text-zinc-400 dark:text-zinc-550 uppercase tracking-[0.15em]">Notulensi / Ringkasan</p>
-                                                {!isEditingSummary && canManage && (!isEnded || currentUser.role === 'superadmin') && (
+                                                {!isEditingSummary && canManage && !isEnded && (
                                                     <button
                                                         onClick={() => setIsEditingSummary(true)}
                                                         className="text-xs text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white font-bold uppercase tracking-wider flex items-center gap-1.5 transition"

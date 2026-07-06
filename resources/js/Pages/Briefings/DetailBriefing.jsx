@@ -9,7 +9,7 @@ import 'react-quill-new/dist/quill.snow.css';
 export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbsenUrl, flash }) {
     const { auth, storage_url, app_url } = usePage().props;
     const currentUser = auth.user;
-    const canManage = currentUser.role === 'superadmin' || briefing.user_id === currentUser.id || briefing.pemateri_fid === currentUser.fid;
+    const canManage = briefing.user_id === currentUser.id || briefing.pemateri_fid === currentUser.fid;
 
     const [searchQuery, setSearchQuery] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);

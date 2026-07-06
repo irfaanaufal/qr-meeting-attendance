@@ -50,7 +50,7 @@ class MeetingController extends Controller
             }
         ])->findOrFail($id);
 
-        if ($meeting->user_id !== Auth::id() && !Auth::user()->isSuperAdmin() && $meeting->status !== 'Ended') {
+        if ($meeting->user_id !== Auth::id() && $meeting->status !== 'Ended') {
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki otoritas untuk melihat rincian rapat ini.');
         }
 
@@ -154,7 +154,7 @@ class MeetingController extends Controller
     {
         $meeting = Meeting::findOrFail($id);
 
-        if ($meeting->user_id !== Auth::id() && !Auth::user()->isSuperAdmin()) {
+        if ($meeting->user_id !== Auth::id()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk mengubah status rapat ini.');
         }
 
@@ -174,7 +174,7 @@ class MeetingController extends Controller
     {
         $meeting = Meeting::findOrFail($id);
 
-        if ($meeting->user_id !== Auth::id() && !Auth::user()->isSuperAdmin()) {
+        if ($meeting->user_id !== Auth::id()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk mengubah status absensi rapat ini.');
         }
 
@@ -196,12 +196,12 @@ class MeetingController extends Controller
     {
         $meeting = Meeting::findOrFail($id);
 
-        if ($meeting->user_id !== Auth::id() && !Auth::user()->isSuperAdmin()) {
+        if ($meeting->user_id !== Auth::id()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk memperbarui rapat ini.');
         }
 
-        if ($meeting->status === 'Ended' && !Auth::user()->isSuperAdmin()) {
-            return back()->with('error', 'Rapat sudah diakhiri secara permanen. Notulensi hanya bisa diubah oleh Super Admin.');
+        if ($meeting->status === 'Ended') {
+            return back()->with('error', 'Rapat sudah diakhiri secara permanen. Notulensi hanya bisa diubah saat rapat masih aktif.');
         }
 
         $validated = $request->validate([
@@ -222,7 +222,7 @@ class MeetingController extends Controller
     {
         $meeting = Meeting::findOrFail($id);
 
-        if ($meeting->user_id !== Auth::id() && !Auth::user()->isSuperAdmin()) {
+        if ($meeting->user_id !== Auth::id()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk mengakhiri rapat ini.');
         }
 
@@ -249,7 +249,7 @@ class MeetingController extends Controller
             }
         ])->findOrFail($id);
 
-        if ($meeting->user_id !== Auth::id() && !Auth::user()->isSuperAdmin() && $meeting->status !== 'Ended') {
+        if ($meeting->user_id !== Auth::id() && $meeting->status !== 'Ended') {
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki otoritas untuk mencetak rapat ini.');
         }
 
@@ -265,7 +265,7 @@ class MeetingController extends Controller
     {
         $meeting = Meeting::findOrFail($meetingId);
 
-        if ($meeting->user_id !== Auth::id() && !Auth::user()->isSuperAdmin()) {
+        if ($meeting->user_id !== Auth::id()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk menghapus data absensi ini.');
         }
 
@@ -287,7 +287,7 @@ class MeetingController extends Controller
     {
         $meeting = Meeting::findOrFail($id);
 
-        if ($meeting->user_id !== Auth::id() && !Auth::user()->isSuperAdmin()) {
+        if ($meeting->user_id !== Auth::id()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk mengunggah berkas rapat ini.');
         }
 
@@ -328,7 +328,7 @@ class MeetingController extends Controller
     {
         $meeting = Meeting::findOrFail($id);
 
-        if ($meeting->user_id !== Auth::id() && !Auth::user()->isSuperAdmin()) {
+        if ($meeting->user_id !== Auth::id()) {
             return back()->with('error', 'Anda tidak memiliki otoritas untuk menghapus berkas rapat ini.');
         }
 
@@ -354,16 +354,10 @@ class MeetingController extends Controller
      */
     public function history()
     {
-        $user = Auth::user();
-
         $query = Meeting::withCount('absensi')
             ->with('user')
             ->where('status', 'Ended')
             ->orderBy('tanggal_jam', 'desc');
-
-        if (!$user->isSuperAdmin()) {
-            $query->where('user_id', $user->id);
-        }
 
         $meetings = $query->get();
 

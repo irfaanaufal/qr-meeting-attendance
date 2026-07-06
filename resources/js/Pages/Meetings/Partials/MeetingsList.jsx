@@ -19,7 +19,7 @@ export default function MeetingsList({ meetings, filtered, searchQuery, setSearc
                     </div>
                     <div>
                         <h3 className="font-extrabold text-zinc-900 dark:text-white text-sm tracking-tight">
-                            {user.role === 'superadmin' ? 'Semua Rapat Sistem' : 'Daftar Rapat Anda'}
+                            Semua Rapat
                         </h3>
                         <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium">
                             {filtered.length} dari {meetings.length} rapat
@@ -105,9 +105,7 @@ export default function MeetingsList({ meetings, filtered, searchQuery, setSearc
                                             </svg>
                                             {meeting.absensi_count} Hadir
                                         </span>
-                                        {user.role === 'superadmin' && (
-                                            <> &bull; <span className="font-semibold text-zinc-700 dark:text-zinc-300">{meeting.user?.name || 'Unknown'}</span></>
-                                        )}
+                                         &bull; <span className="font-semibold text-zinc-700 dark:text-zinc-300">{meeting.user?.name || 'Unknown'}</span>
                                     </p>
                                 </div>
                             </div>

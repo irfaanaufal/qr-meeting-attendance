@@ -18,7 +18,7 @@ export default function BriefingsList({ briefings, filtered, searchQuery, setSea
                     </div>
                     <div>
                         <h3 className="font-extrabold text-zinc-900 dark:text-white text-sm tracking-tight">
-                            {user.role === 'superadmin' ? 'Semua Briefing' : 'Daftar Briefing Anda'}
+                            Semua Briefing
                         </h3>
                         <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium">
                             {filtered.length} dari {briefings.length} briefing
@@ -120,9 +120,7 @@ export default function BriefingsList({ briefings, filtered, searchQuery, setSea
                                                 </span>
                                             </>
                                         )}
-                                        {user.role === 'superadmin' && (
-                                            <> &bull; <span className="font-semibold text-zinc-700 dark:text-zinc-300">{briefing.user?.name || 'Unknown'}</span></>
-                                        )}
+                                         &bull; <span className="font-semibold text-zinc-700 dark:text-zinc-300">{briefing.user?.name || 'Unknown'}</span>
                                     </p>
                                 </div>
                             </div>
