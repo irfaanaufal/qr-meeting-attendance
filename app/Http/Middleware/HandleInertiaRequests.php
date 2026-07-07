@@ -29,6 +29,15 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        $userData = null;
+        if ($user) {
+            $userData = $user->toArray();
+            $userData['avatar_url'] = $user->avatar_path
+                ? asset($user->avatar_path)
+                : null;
+        }
+
         $baseUrl = $request->getBaseUrl();
         if (env('STORAGE_URL')) {
             $storageUrl = env('STORAGE_URL');
@@ -41,7 +50,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $userData,
             ],
             'flash' => [
                 'success' => $request->session()->get('success'),

@@ -145,7 +145,7 @@ export default function Print({ briefing }) {
 
                 {/* Isi Briefing */}
                 {hasTranscript && (
-                    <div className="section avoid-break">
+                    <div className="section">
                         <h3 className="section-title">ISI BRIEFING</h3>
                         <div className="transcript-content" dangerouslySetInnerHTML={{ __html: transcriptText }} />
                     </div>
@@ -201,16 +201,16 @@ export default function Print({ briefing }) {
                         <p className="signature-date">{formatDateTimeFull(briefing.approved_at || briefing.tanggal_jam)}</p>
                         <p className="signature-role">Pemateri</p>
                         <div className="signature-space">
-                            {briefing.user?.karyawan?.signature ? (
+                            {briefing.pemateri?.signature ? (
                                 <img
-                                    src={`${storage_url}/${briefing.user.karyawan.signature.signature_path}`}
+                                    src={`${storage_url}/${briefing.pemateri.signature.signature_path}`}
                                     alt="Tanda Tangan Pemateri"
                                     className="signature-img"
                                 />
                             ) : null}
                         </div>
                         <div className="signature-name-wrapper">
-                            <p className="signature-name">({briefing.user?.name || '-'})</p>
+                            <p className="signature-name">({briefing.pemateri?.nama_karyawan || '-'})</p>
                         </div>
                     </div>
                 </div>
@@ -309,6 +309,9 @@ export default function Print({ briefing }) {
                     /* -- Transcript -- */
                     .transcript-content {
                         padding: 0 2px;
+                        page-break-inside: auto;
+                        overflow-wrap: break-word;
+                        word-wrap: break-word;
                     }
                     .transcript-content p {
                         text-indent: 30px;

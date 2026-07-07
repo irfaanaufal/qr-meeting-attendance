@@ -54,22 +54,8 @@ class MeetingController extends Controller
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki otoritas untuk melihat rincian rapat ini.');
         }
 
-        // Construct public check-in URL dynamically
-        $req = request();
-        $host = $req->getHost();
-        $port = $req->getPort();
-        
-        // If accessed via loopback, replace with local machine IP so devices on same Wi-Fi can scan it
-        if (in_array($host, ['localhost', '127.0.0.1', '::1'])) {
-            $localIp = gethostbyname(gethostname());
-            if ($localIp && $localIp !== '127.0.0.1' && $localIp !== gethostname()) {
-                $host = $localIp;
-            }
-        }
-        
-        $protocol = $req->isSecure() ? 'https://' : 'http://';
-        $portSuffix = ($port && !in_array($port, [80, 443])) ? ':' . $port : '';
-        $publicAbsenUrl = $protocol . $host . $portSuffix . $req->getBaseUrl() . '/absen/meeting/' . $meeting->id;
+        // Construct public check-in URL using DDNS domain from APP_URL
+        $publicAbsenUrl = config('app.url') . '/index.php/absen/meeting/' . $meeting->id;
  
         return Inertia::render('Meetings/DetailMeeting', [
             'meeting' => $meeting,

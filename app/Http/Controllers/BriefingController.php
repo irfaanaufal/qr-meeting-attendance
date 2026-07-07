@@ -57,20 +57,8 @@ class BriefingController extends Controller
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki otoritas untuk melihat briefing ini.');
         }
 
-        $req = request();
-        $host = $req->getHost();
-        $port = $req->getPort();
-
-        if (in_array($host, ['localhost', '127.0.0.1', '::1'])) {
-            $localIp = gethostbyname(gethostname());
-            if ($localIp && $localIp !== '127.0.0.1' && $localIp !== gethostname()) {
-                $host = $localIp;
-            }
-        }
-
-        $protocol = $req->isSecure() ? 'https://' : 'http://';
-        $portSuffix = ($port && !in_array($port, [80, 443])) ? ':' . $port : '';
-        $publicAbsenUrl = $protocol . $host . $portSuffix . $req->getBaseUrl() . '/absen/briefing/' . $briefing->id;
+        // Construct public check-in URL using DDNS domain from APP_URL
+        $publicAbsenUrl = config('app.url') . '/index.php/absen/briefing/' . $briefing->id;
 
         return Inertia::render('Briefings/DetailBriefing', [
             'briefing' => $briefing,
@@ -321,7 +309,7 @@ class BriefingController extends Controller
     {
         $briefing = Briefing::with([
             'user.karyawan.signature',
-            'pemateri',
+            'pemateri.signature',
             'absensi' => function ($query) {
                 $query->with('karyawan.signature')->orderBy('jam_absen', 'asc');
             }

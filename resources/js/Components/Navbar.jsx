@@ -72,6 +72,13 @@ export default function Navbar({ user }) {
                             onClick={() => setShowingUserDropdown(!showingUserDropdown)}
                             className="text-sm font-bold text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition focus:outline-none flex items-center gap-1.5 py-2"
                         >
+                            {user.avatar_url ? (
+                                <img src={user.avatar_url} alt={user.name} className="w-6 h-6 rounded-full object-cover" />
+                            ) : (
+                                <div className="w-6 h-6 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center text-[10px] font-black">
+                                    {user.name?.charAt(0)?.toUpperCase()}
+                                </div>
+                            )}
                             <span>{user.name}</span>
                             <svg className={`w-3.5 h-3.5 transition-transform duration-200 ${showingUserDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
@@ -173,9 +180,13 @@ export default function Navbar({ user }) {
                 </div>
                 <div className="border-t border-zinc-100 px-4 py-3 space-y-1 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/50">
                     <div className="flex items-center gap-3 mb-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-900 text-white text-xs font-black dark:bg-white dark:text-zinc-900">
-                            {user.name.charAt(0).toUpperCase()}
-                        </div>
+                        {user.avatar_url ? (
+                            <img src={user.avatar_url} alt={user.name} className="w-8 h-8 rounded-full object-cover" />
+                        ) : (
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-900 text-white text-xs font-black dark:bg-white dark:text-zinc-900">
+                                {user.name.charAt(0).toUpperCase()}
+                            </div>
+                        )}
                         <div>
                             <p className="text-sm font-bold text-zinc-900 dark:text-white">{user.name}</p>
                             <p className="text-xs text-zinc-500 dark:text-zinc-400">{user.email}</p>

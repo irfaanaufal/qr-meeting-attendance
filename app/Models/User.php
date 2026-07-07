@@ -12,14 +12,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'username', 'email', 'password', 'fid'])]
+#[Fillable(['name', 'username', 'email', 'password', 'fid', 'avatar_path'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    protected $appends = ['divisi', 'jabatan'];
+    protected $appends = ['divisi', 'jabatan', 'avatar_url'];
 
     protected function casts(): array
     {
@@ -62,5 +62,10 @@ class User extends Authenticatable
     public function getJabatanAttribute(): string
     {
         return $this->karyawan?->jabatan ?? 'Staff';
+    }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        return $this->avatar_path ? asset($this->avatar_path) : null;
     }
 }
