@@ -12,22 +12,8 @@ import LightPullThemeSwitcher from '@/Components/LightPullThemeSwitcher';
 
 export default function Login({ status, canResetPassword }) {
     const getBgImageUrl = () => {
-        if (typeof window !== 'undefined') {
-            const pathname = window.location.pathname;
-            let basePath = '';
-            const markers = ['/public.index.php', '/public/index.php', '/public'];
-            for (const marker of markers) {
-                const idx = pathname.indexOf(marker);
-                if (idx !== -1) {
-                    basePath = pathname.substring(0, idx + marker.length).replace(/\/?index\.php$/, '');
-                    break;
-                }
-            }
-            if (basePath) {
-                return `${window.location.origin}${basePath}/images/login_bg.png`;
-            }
-        }
-        return '/images/login_bg.png';
+        const basePath = import.meta.env.VITE_APP_BASE_PATH || '';
+        return `${basePath}/images/login_bg.png`;
     };
 
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -111,7 +97,7 @@ export default function Login({ status, canResetPassword }) {
                         <path d="M -50 180 Q 100 130 250 200 T 550 150" />
                         <path d="M -50 210 Q 100 160 250 230 T 550 180" />
                     </svg>
-                    
+
                     {/* Wavy bottom divider transition into the form */}
                     <svg viewBox="0 0 800 120" fill="none" preserveAspectRatio="none" className="absolute bottom-0 left-0 w-full h-[40px] translate-y-[1px] pointer-events-none text-white dark:text-zinc-900 transition-colors duration-200">
                         <path d="M0,60 C240,120 560,0 800,60 L800,120 L0,120 Z" fill="currentColor" />
@@ -130,7 +116,7 @@ export default function Login({ status, canResetPassword }) {
 
                 {/* Decorative background grid pattern for mobile only */}
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none md:hidden" />
-                
+
                 {/* Ambient glow lights for mobile only */}
                 <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[50%] rounded-full bg-amber-400/10 dark:bg-amber-400/5 blur-[80px] pointer-events-none md:hidden" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[50%] rounded-full bg-zinc-400/15 dark:bg-zinc-400/5 blur-[80px] pointer-events-none md:hidden" />
@@ -263,12 +249,12 @@ export default function Login({ status, canResetPassword }) {
             {/* Right Panel: Image */}
             <div className="relative hidden w-1/2 md:block overflow-hidden">
                 <img
-                  src={getBgImageUrl()}
-                  alt="Modern meeting room workspace background"
-                  className="h-full w-full object-cover select-none pointer-events-none"
+                    src={getBgImageUrl()}
+                    alt="Modern meeting room workspace background"
+                    className="h-full w-full object-cover select-none pointer-events-none"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent pointer-events-none" />
-                
+
                 {/* Visual quote overlay for premium aesthetics */}
                 <div className="absolute bottom-12 left-12 right-12 text-white space-y-3 pointer-events-none">
                     <p className="text-xl font-bold tracking-tight leading-relaxed">

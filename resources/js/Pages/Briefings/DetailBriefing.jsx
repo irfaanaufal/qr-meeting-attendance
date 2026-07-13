@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, usePage } from '@inertiajs/react';
 import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from '@headlessui/react';
@@ -23,6 +23,14 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
     const [pemateriDivisi, setPemateriDivisi] = useState(briefing.divisi_pemateri || '');
     const [pemateriSearchQuery, setPemateriSearchQuery] = useState('');
     const [isSavingField, setIsSavingField] = useState(false);
+    const [isUploadingRecording, setIsUploadingRecording] = useState(false);
+    const pollingRef = useRef(null);
+
+    useEffect(() => {
+        return () => {
+            if (pollingRef.current) clearInterval(pollingRef.current);
+        };
+    }, []);
 
     const filteredPresenters = presenters.filter(p => {
         const query = pemateriSearchQuery.toLowerCase();
@@ -98,11 +106,33 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
         const file = e.target.files[0];
         if (!file) return;
 
+        setIsUploadingRecording(true);
+
         router.post(route('briefings.upload-recording', briefing.id), {
             recording: file,
         }, {
             preserveScroll: true,
+            onError: () => {
+                setIsUploadingRecording(false);
+                if (pollingRef.current) {
+                    clearInterval(pollingRef.current);
+                    pollingRef.current = null;
+                }
+            },
         });
+
+        pollingRef.current = setInterval(() => {
+            axios.get(route('briefings.transcription-status', briefing.id))
+                .then((res) => {
+                    if (res.data.transcript !== null) {
+                        clearInterval(pollingRef.current);
+                        pollingRef.current = null;
+                        setIsUploadingRecording(false);
+                        router.reload({ only: ['briefing'] });
+                    }
+                })
+                .catch(() => {});
+        }, 5000);
     };
 
     const handleDeleteRecording = () => {
@@ -356,7 +386,20 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
 
                                         <div className="space-y-1">
                                             <p className="text-[11px] font-extrabold text-zinc-400 dark:text-zinc-550 uppercase tracking-[0.15em]">Rekaman Briefing</p>
-                                            {isSelesai ? (
+                                            {isUploadingRecording ? (
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center gap-3 p-4 bg-zinc-50 rounded-xl border border-zinc-200 dark:bg-zinc-950 dark:border-zinc-800">
+                                                        <svg className="animate-spin h-6 w-6 text-zinc-400 shrink-0" fill="none" viewBox="0 0 24 24">
+                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                                        </svg>
+                                                        <div>
+                                                            <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Mengunggah & mentranskripsi rekaman...</p>
+                                                            <p className="text-xs text-zinc-400 dark:text-zinc-500">Proses ini membutuhkan beberapa saat</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ) : isSelesai ? (
                                                 <p className="text-xs text-zinc-400 italic">Rekaman telah dihapus setelah briefing selesai.</p>
                                             ) : briefing.recording_file ? (
                                                 <div className="space-y-2">
@@ -417,7 +460,20 @@ export default function DetailBriefing({ briefing, publicAbsenUrl: propPublicAbs
 
                                         <div className="sm:col-span-2 space-y-2">
                                             <p className="text-[11px] font-extrabold text-zinc-400 dark:text-zinc-550 uppercase tracking-[0.15em]">Isi Briefing</p>
-                                            {canManage && isDraft ? (
+                                            {isUploadingRecording ? (
+                                                <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 dark:bg-zinc-950 dark:border-zinc-800">
+                                                    <div className="flex items-center gap-3">
+                                                        <svg className="animate-spin h-5 w-5 text-zinc-400 shrink-0" fill="none" viewBox="0 0 24 24">
+                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                                        </svg>
+                                                        <div>
+                                                            <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Transkripsi sedang diproses...</p>
+                                                            <p className="text-xs text-zinc-400 dark:text-zinc-500">Isi briefing akan muncul setelah transkripsi selesai</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ) : canManage && isDraft ? (
                                                 <div>
                                                     {isEditingTranscript ? (
                                                         <div className="space-y-2">

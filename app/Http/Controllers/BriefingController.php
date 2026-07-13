@@ -41,7 +41,7 @@ class BriefingController extends Controller
             ->with('success', 'Briefing berhasil dibuat!');
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $briefing = Briefing::with([
             'user',
@@ -58,7 +58,7 @@ class BriefingController extends Controller
         }
 
         // Construct public check-in URL using DDNS domain from APP_URL
-        $publicAbsenUrl = config('app.url') . '/index.php/absen/briefing/' . $briefing->id;
+        $publicAbsenUrl = env('QR_PUBLIC_HOST') . '/qr-attendance/absen/briefing/' . $briefing->id;
 
         return Inertia::render('Briefings/DetailBriefing', [
             'briefing' => $briefing,
@@ -223,6 +223,15 @@ class BriefingController extends Controller
         }
 
         return back()->with('error', 'Gagal mengunggah rekaman.');
+    }
+
+    public function transcriptionStatus($id)
+    {
+        $briefing = Briefing::findOrFail($id);
+
+        return response()->json([
+            'transcript' => $briefing->transcript,
+        ]);
     }
 
     public function deleteRecording($id)

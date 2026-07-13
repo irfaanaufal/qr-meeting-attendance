@@ -34,13 +34,13 @@ export default function Navbar({ user }) {
     return (
         <div className="w-full px-4 sm:px-6 lg:px-8 pt-4 pb-2 bg-zinc-50 dark:bg-zinc-950 transition-colors duration-200">
             <nav className="mx-auto w-full max-w-full flex h-14 items-center justify-between rounded-full bg-white border border-zinc-200 px-4 sm:px-6 shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
-                
+
                 {/* Left: Logo + Nav */}
                 <div className="flex items-center gap-5">
-                    <Link href="/" className="flex items-center justify-center transition hover:scale-105">
+                    <Link href={route('dashboard')} className="flex items-center justify-center transition hover:scale-105">
                         <ApplicationLogo className="h-8 w-auto object-contain" />
                     </Link>
-                    
+
                     <div className="hidden sm:block h-5 w-px bg-zinc-200 dark:bg-zinc-800"></div>
 
                     <div className="hidden sm:flex items-center gap-4">
@@ -87,11 +87,11 @@ export default function Navbar({ user }) {
 
                         {showingUserDropdown && (
                             <>
-                                <div 
-                                    className="fixed inset-0 z-10" 
+                                <div
+                                    className="fixed inset-0 z-10"
                                     onClick={() => setShowingUserDropdown(false)}
                                 />
-                                
+
                                 <div className="absolute right-0 mt-2 w-48 rounded-xl border border-zinc-200 bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-30 dark:bg-zinc-900 dark:border-zinc-800">
                                     <div className="px-4 py-2 border-b border-zinc-100 dark:border-zinc-850">
                                         <p className="text-[10px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-wider">Masuk sebagai</p>
